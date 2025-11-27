@@ -202,6 +202,15 @@
         "documentation": {}
     },
     {
+        "label": "shutil",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "shutil",
+        "description": "shutil",
+        "detail": "shutil",
+        "documentation": {}
+    },
+    {
         "label": "sqlite3",
         "kind": 6,
         "isExtraImport": true,
@@ -547,7 +556,7 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def main():\n    base = Path(__file__).resolve().parent\n    banner()\n    check_ubuntu()\n    print(f\"{GREEN}✓ Ubuntu detected{RESET}\")\n    check_xui_installed()\n    print(f\"{GREEN}✓ 3x-ui detected{RESET}\")\n    check_cert_present()\n    print(f\"{GREEN}✓ SSL certificate found{RESET}\")\n    xui = load_xui_config()",
+        "peekOfCode": "def main():\n    base = Path(__file__).resolve().parent\n    if base != TARGET_DIR and not os.environ.get(\"TBLOCK_ALREADY_SYNCED\"):\n        TARGET_DIR.mkdir(parents=True, exist_ok=True)\n        for name in [\"installer.py\", \"requirements.txt\", \"env.template\"]:\n            src = base / name\n            if src.exists():\n                shutil.copy2(src, TARGET_DIR / name)\n        src_dir = base / \"pTblock\"\n        dst_dir = TARGET_DIR / \"pTblock\"",
         "detail": "installer",
         "documentation": {}
     },
@@ -556,7 +565,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "REQUESTS = None\nGREEN = \"\\033[92m\"\nRED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):",
+        "peekOfCode": "REQUESTS = None\nGREEN = \"\\033[92m\"\nRED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nTARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"",
         "detail": "installer",
         "documentation": {}
     },
@@ -565,7 +574,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "GREEN = \"\\033[92m\"\nRED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")",
+        "peekOfCode": "GREEN = \"\\033[92m\"\nRED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nTARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):",
         "detail": "installer",
         "documentation": {}
     },
@@ -574,7 +583,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "RED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)",
+        "peekOfCode": "RED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nTARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")",
         "detail": "installer",
         "documentation": {}
     },
@@ -583,7 +592,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "YELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():",
+        "peekOfCode": "YELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nTARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)",
         "detail": "installer",
         "documentation": {}
     },
@@ -592,7 +601,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "CYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"",
+        "peekOfCode": "CYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nTARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():",
         "detail": "installer",
         "documentation": {}
     },
@@ -601,7 +610,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "BOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           ",
+        "peekOfCode": "BOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nTARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"",
         "detail": "installer",
         "documentation": {}
     },
@@ -610,7 +619,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "RESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          ",
+        "peekOfCode": "RESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nTARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           ",
         "detail": "installer",
         "documentation": {}
     },
@@ -619,7 +628,16 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "XUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          \n| |_| |__ | | ___   ___| | __ | |_| | __  _ _ __  ___| |_ __ _| | | ___ _ __ ",
+        "peekOfCode": "XUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nTARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          ",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "TARGET_DIR",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "TARGET_DIR = Path(\"/etc/tblock\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          \n| |_| |__ | | ___   ___| | __ | |_| | __  _ _ __  ___| |_ __ _| | | ___ _ __ ",
         "detail": "installer",
         "documentation": {}
     },

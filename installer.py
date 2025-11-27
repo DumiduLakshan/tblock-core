@@ -2,6 +2,7 @@ import getpass
 import json
 import os
 import platform
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -19,6 +20,7 @@ BOLD = "\033[1m"
 RESET = "\033[0m"
 
 XUI_DB_PATH = Path("/etc/x-ui/x-ui.db")
+TARGET_DIR = Path("/etc/tblock")
 VALIDATOR_URL = "https://whale-app-sdmtd.ondigitalocean.app"
 
 
@@ -327,12 +329,7 @@ def create_cli_menu():
           echo -e "${BOLD}${CYAN}tblock.fk control${RESET}"
         }
 
-        fragment_path="$(systemctl show -p FragmentPath --value "$svc" 2>/dev/null || true)"
-        workdir=""
-        if [[ -n "$fragment_path" && -f "$fragment_path" ]]; then
-          workdir=$(grep -m1 '^WorkingDirectory=' "$fragment_path" | cut -d= -f2)
-        fi
-        [[ -z "$workdir" ]] && workdir="/root/tblock-core"
+        workdir="/etc/tblock"
 
         status_msg() {
           if systemctl is-active --quiet "$svc"; then
@@ -418,6 +415,19 @@ def create_cli_menu():
 
 def main():
     base = Path(__file__).resolve().parent
+    if base != TARGET_DIR and not os.environ.get("TBLOCK_ALREADY_SYNCED"):
+        TARGET_DIR.mkdir(parents=True, exist_ok=True)
+        for name in ["installer.py", "requirements.txt", "env.template"]:
+            src = base / name
+            if src.exists():
+                shutil.copy2(src, TARGET_DIR / name)
+        src_dir = base / "pTblock"
+        dst_dir = TARGET_DIR / "pTblock"
+        if dst_dir.exists():
+            shutil.rmtree(dst_dir)
+        shutil.copytree(src_dir, dst_dir)
+        os.environ["TBLOCK_ALREADY_SYNCED"] = "1"
+        os.execv(sys.executable, [sys.executable, str(TARGET_DIR / "installer.py")])
     banner()
     check_ubuntu()
     print(f"{GREEN}✓ Ubuntu detected{RESET}")
