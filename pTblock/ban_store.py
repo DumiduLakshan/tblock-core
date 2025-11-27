@@ -1,7 +1,9 @@
+import fastapi
 import sqlite3
 from pathlib import Path
 from typing import List, Dict, Any
 from datetime import datetime, timezone
+from installer import check_ubuntu
 
 
 class BanStore:
@@ -75,6 +77,8 @@ class BanStore:
         unbanned = cur.fetchone()[0]
         conn.close()
         return {"total": total, "unbanned": unbanned, "banned": total - unbanned}
+
+
 
     def mark_unbanned(self, email: str) -> None:
         now = datetime.now(timezone.utc).isoformat()

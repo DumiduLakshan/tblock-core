@@ -566,7 +566,10 @@ def main():
         print(f"{GREEN}tblock watcher installed and running.{RESET}")
     else:
         print(f"{YELLOW}Service not fully installed. Manual steps may be required.{RESET}")
-    install_service_unit(panel_service)
+    if install_service_unit(panel_service):
+        print(f"{GREEN}tblock panel installed and running on port {env_values['PANEL_PORT']}.{RESET}")
+    else:
+        print(f"{YELLOW}Panel service not fully installed. Manual steps may be required.{RESET}")
     create_cli_menu()
     print(f"{GREEN}You can manage tblock via the 'tblock' command (status/logs/stop/remove).{RESET}")
 
