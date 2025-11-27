@@ -1,106 +1,11 @@
 [
     {
-        "label": "annotations",
-        "importPath": "__future__",
-        "description": "__future__",
-        "isExtraImport": true,
-        "detail": "__future__",
-        "documentation": {}
-    },
-    {
-        "label": "argparse",
+        "label": "sqlite3",
         "kind": 6,
         "isExtraImport": true,
-        "importPath": "argparse",
-        "description": "argparse",
-        "detail": "argparse",
-        "documentation": {}
-    },
-    {
-        "label": "json",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "json",
-        "description": "json",
-        "detail": "json",
-        "documentation": {}
-    },
-    {
-        "label": "logging",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "logging",
-        "description": "logging",
-        "detail": "logging",
-        "documentation": {}
-    },
-    {
-        "label": "os",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "os",
-        "description": "os",
-        "detail": "os",
-        "documentation": {}
-    },
-    {
-        "label": "signal",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "signal",
-        "description": "signal",
-        "detail": "signal",
-        "documentation": {}
-    },
-    {
-        "label": "sys",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "sys",
-        "description": "sys",
-        "detail": "sys",
-        "documentation": {}
-    },
-    {
-        "label": "time",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "time",
-        "description": "time",
-        "detail": "time",
-        "documentation": {}
-    },
-    {
-        "label": "threading",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "threading",
-        "description": "threading",
-        "detail": "threading",
-        "documentation": {}
-    },
-    {
-        "label": "dataclass",
-        "importPath": "dataclasses",
-        "description": "dataclasses",
-        "isExtraImport": true,
-        "detail": "dataclasses",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
+        "importPath": "sqlite3",
+        "description": "sqlite3",
+        "detail": "sqlite3",
         "documentation": {}
     },
     {
@@ -117,6 +22,54 @@
         "description": "pathlib",
         "isExtraImport": true,
         "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Dict",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
         "documentation": {}
     },
     {
@@ -176,12 +129,117 @@
         "documentation": {}
     },
     {
-        "label": "requests",
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "os",
         "kind": 6,
         "isExtraImport": true,
-        "importPath": "requests",
-        "description": "requests",
-        "detail": "requests",
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "uvicorn",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "uvicorn",
+        "description": "uvicorn",
+        "detail": "uvicorn",
+        "documentation": {}
+    },
+    {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Depends",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Form",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTMLResponse",
+        "importPath": "fastapi.responses",
+        "description": "fastapi.responses",
+        "isExtraImport": true,
+        "detail": "fastapi.responses",
+        "documentation": {}
+    },
+    {
+        "label": "RedirectResponse",
+        "importPath": "fastapi.responses",
+        "description": "fastapi.responses",
+        "isExtraImport": true,
+        "detail": "fastapi.responses",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPBasic",
+        "importPath": "fastapi.security",
+        "description": "fastapi.security",
+        "isExtraImport": true,
+        "detail": "fastapi.security",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPBasicCredentials",
+        "importPath": "fastapi.security",
+        "description": "fastapi.security",
+        "isExtraImport": true,
+        "detail": "fastapi.security",
         "documentation": {}
     },
     {
@@ -190,6 +248,142 @@
         "description": "dotenv",
         "isExtraImport": true,
         "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "BanStore",
+        "importPath": "ban_store",
+        "description": "ban_store",
+        "isExtraImport": true,
+        "detail": "ban_store",
+        "documentation": {}
+    },
+    {
+        "label": "BanStore",
+        "importPath": "ban_store",
+        "description": "ban_store",
+        "isExtraImport": true,
+        "detail": "ban_store",
+        "documentation": {}
+    },
+    {
+        "label": "Settings",
+        "importPath": "torrent_watch",
+        "description": "torrent_watch",
+        "isExtraImport": true,
+        "detail": "torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "load_settings",
+        "importPath": "torrent_watch",
+        "description": "torrent_watch",
+        "isExtraImport": true,
+        "detail": "torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "XuiClient",
+        "importPath": "torrent_watch",
+        "description": "torrent_watch",
+        "isExtraImport": true,
+        "detail": "torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "argparse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "argparse",
+        "description": "argparse",
+        "detail": "argparse",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "logging",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "logging",
+        "description": "logging",
+        "detail": "logging",
+        "documentation": {}
+    },
+    {
+        "label": "signal",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "signal",
+        "description": "signal",
+        "detail": "signal",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "threading",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "threading",
+        "description": "threading",
+        "detail": "threading",
+        "documentation": {}
+    },
+    {
+        "label": "dataclass",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
         "documentation": {}
     },
     {
@@ -220,15 +414,6 @@
         "documentation": {}
     },
     {
-        "label": "sqlite3",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "sqlite3",
-        "description": "sqlite3",
-        "detail": "sqlite3",
-        "documentation": {}
-    },
-    {
         "label": "subprocess",
         "kind": 6,
         "isExtraImport": true,
@@ -252,6 +437,69 @@
         "description": "importlib",
         "isExtraImport": true,
         "detail": "importlib",
+        "documentation": {}
+    },
+    {
+        "label": "BanStore",
+        "kind": 6,
+        "importPath": "pTblock.ban_store",
+        "description": "pTblock.ban_store",
+        "peekOfCode": "class BanStore:\n    def __init__(self, path: Path):\n        self.path = path\n        self.path.parent.mkdir(parents=True, exist_ok=True)\n        self._init_db()\n    def _init_db(self) -> None:\n        conn = sqlite3.connect(self.path)\n        cur = conn.cursor()\n        cur.execute(\n            \"\"\"",
+        "detail": "pTblock.ban_store",
+        "documentation": {}
+    },
+    {
+        "label": "init",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def init():\n    global SETTINGS, STORE, XUI\n    load_dotenv()\n    SETTINGS = load_settings()\n    STORE = BanStore(SETTINGS.ban_db)\n    XUI = XuiClient(SETTINGS)\ndef auth(creds: HTTPBasicCredentials = Depends(security)) -> None:\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    user_ok = creds.username == SETTINGS.username",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "auth",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def auth(creds: HTTPBasicCredentials = Depends(security)) -> None:\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    user_ok = creds.username == SETTINGS.username\n    pass_ok = creds.password == SETTINGS.password\n    if not (user_ok and pass_ok):\n        raise HTTPException(status_code=401, detail=\"Unauthorized\")\n@app.get(\"/\", response_class=HTMLResponse)\ndef home(q: str = \"\", _: None = Depends(auth)):\n    bans = STORE.list(q) if STORE else []",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "home",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def home(q: str = \"\", _: None = Depends(auth)):\n    bans = STORE.list(q) if STORE else []\n    stats = STORE.stats() if STORE else {\"total\": 0, \"unbanned\": 0, \"banned\": 0}\n    rows = \"\".join(\n        f\"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['status']}</td>\"\n        f\"<td>{b['created_at']}</td><td><form method='post' action='/unban'>\"\n        f\"<input type='hidden' name='email' value='{b['email']}'/>\"\n        f\"<button type='submit'>Unban</button></form></td></tr>\"\n        for b in bans\n    )",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "unban",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def unban(email: str = Form(...), _: None = Depends(auth)):\n    if not XUI or not STORE:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    client = XUI.get_client(email)\n    if not client:\n        raise HTTPException(status_code=404, detail=\"Client not found\")\n    inbound_id = client.get(\"inboundId\") or client.get(\"inbound_id\")\n    client_uuid = client.get(\"uuid\") or client.get(\"id\")\n    if inbound_id is None or client_uuid is None:\n        raise HTTPException(status_code=400, detail=\"Client data incomplete\")",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "security",
+        "kind": 5,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "security = HTTPBasic()\napp = FastAPI(title=\"tblock.fk bans\")\nSETTINGS: Optional[Settings] = None\nSTORE: Optional[BanStore] = None\nXUI: Optional[XuiClient] = None\ndef init():\n    global SETTINGS, STORE, XUI\n    load_dotenv()\n    SETTINGS = load_settings()\n    STORE = BanStore(SETTINGS.ban_db)",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "app = FastAPI(title=\"tblock.fk bans\")\nSETTINGS: Optional[Settings] = None\nSTORE: Optional[BanStore] = None\nXUI: Optional[XuiClient] = None\ndef init():\n    global SETTINGS, STORE, XUI\n    load_dotenv()\n    SETTINGS = load_settings()\n    STORE = BanStore(SETTINGS.ban_db)\n    XUI = XuiClient(SETTINGS)",
+        "detail": "pTblock.panel_app",
         "documentation": {}
     },
     {
@@ -304,7 +552,7 @@
         "kind": 6,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "class TorrentWatcher:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.xui = XuiClient(settings)\n        self.log = BanLog(settings.log_file)\n        self.notifier = WebhookNotifier(settings.webhook_url, settings.webhook_token)\n        self.wa = WhatsAppNotifier(settings.wa_enabled, settings.wa_api_key, settings.wa_channel)\n        self.output_file = settings.output_file\n        self.output_file.parent.mkdir(parents=True, exist_ok=True)\n        self.stop_requested = False",
+        "peekOfCode": "class TorrentWatcher:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.xui = XuiClient(settings)\n        self.log = BanLog(settings.log_file)\n        self.ban_store = BanStore(settings.ban_db)\n        self.notifier = WebhookNotifier(settings.webhook_url, settings.webhook_token)\n        self.wa = WhatsAppNotifier(settings.wa_enabled, settings.wa_api_key, settings.wa_channel)\n        self.output_file = settings.output_file\n        self.output_file.parent.mkdir(parents=True, exist_ok=True)",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -548,6 +796,15 @@
         "importPath": "installer",
         "description": "installer",
         "peekOfCode": "def write_service(base: Path, venv: Path, env_path: Path):\n    service = textwrap.dedent(\n        f\"\"\"\n        [Unit]\n        Description=tblock.fk watcher\n        After=network.target\n        [Service]\n        Type=simple\n        WorkingDirectory={base}\n        EnvironmentFile={env_path}",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "write_panel_service",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def write_panel_service(base: Path, venv: Path, env_path: Path, port: str):\n    service = textwrap.dedent(\n        f\"\"\"\n        [Unit]\n        Description=tblock.fk panel\n        After=network.target\n        [Service]\n        Type=simple\n        WorkingDirectory={base}\n        EnvironmentFile={env_path}",
         "detail": "installer",
         "documentation": {}
     },

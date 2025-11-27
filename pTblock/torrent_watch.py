@@ -16,6 +16,7 @@ from typing import Any, Dict, Iterable, Optional, Tuple
 
 import requests
 from dotenv import load_dotenv
+from ban_store import BanStore
 
 LOG = logging.getLogger("torrent_watch")
 
@@ -46,6 +47,7 @@ class Settings:
     validator_url: str
     tblock_token: Optional[str]
     vps_ip: Optional[str]
+    ban_db: Path
 
     @property
     def base_url(self) -> str:
@@ -93,6 +95,7 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
     validator_url = os.getenv("VALIDATOR_URL", "https://whale-app-sdmtd.ondigitalocean.app").rstrip("/")
     tblock_token = os.getenv("TBLOCK_TOKEN") or None
     vps_ip = os.getenv("VPS_IP") or None
+    ban_db = Path(os.getenv("BAN_DB", "data/bans.db"))
 
     return Settings(
         log_path=log_path,
@@ -115,6 +118,7 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
         validator_url=validator_url,
         tblock_token=tblock_token,
         vps_ip=vps_ip,
+        ban_db=ban_db,
     )
 
 
@@ -336,6 +340,7 @@ class TorrentWatcher:
         self.settings = settings
         self.xui = XuiClient(settings)
         self.log = BanLog(settings.log_file)
+        self.ban_store = BanStore(settings.ban_db)
         self.notifier = WebhookNotifier(settings.webhook_url, settings.webhook_token)
         self.wa = WhatsAppNotifier(settings.wa_enabled, settings.wa_api_key, settings.wa_channel)
         self.output_file = settings.output_file
@@ -358,7 +363,7 @@ class TorrentWatcher:
             )
         LOG.info("Logged offender %s to %s", email, self.output_file)
 
-    def disable_client(self, email: str, ip: str) -> bool:
+    def disable_client(self, email: str, ip: str, domain: Optional[str]) -> bool:
         client = self.xui.get_client(email)
         if not client:
             LOG.warning("No client found for email %s", email)
@@ -376,12 +381,17 @@ class TorrentWatcher:
             "client_uuid": client_uuid,
             "disabled_at": datetime.now(timezone.utc).isoformat(),
             "recommended_review_hours": self.settings.ban_hours,
+            "domain": domain or "",
         }
         if disabled:
             LOG.info("Disabled client %s; waiting for manual review", email)
         else:
             LOG.info("Client %s already in desired state", email)
         self.log.add(entry)
+        try:
+            self.ban_store.add(email, ip, domain or "unknown", reason="torrenting")
+        except Exception as exc:
+            LOG.error("Failed to persist ban to DB: %s", exc)
         if self.notifier.url and email not in self.notified_emails:
             self.notifier.notify(
                 {
@@ -389,6 +399,7 @@ class TorrentWatcher:
                     "email": email,
                     "ip": ip,
                     "recommended_review_hours": self.settings.ban_hours,
+                    "domain": domain or "",
                 }
             )
             self.notified_emails.add(email)
@@ -419,7 +430,7 @@ class TorrentWatcher:
             LOG.info("Detected bittorrent usage from %s (%s) via %s", email, ip, domain or "unknown")
             self.write_offender(timestamp or "", ip, email, line)
             try:
-                if self.disable_client(email, ip):
+                if self.disable_client(email, ip, domain):
                     self.processed_emails.add(email)
                     if domain:
                         self.wa.send_ban(email, domain, self.settings.ban_hours)

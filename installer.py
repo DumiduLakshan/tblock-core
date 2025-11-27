@@ -291,6 +291,29 @@ def write_service(base: Path, venv: Path, env_path: Path):
     return service_path
 
 
+def write_panel_service(base: Path, venv: Path, env_path: Path, port: str):
+    service = textwrap.dedent(
+        f"""
+        [Unit]
+        Description=tblock.fk panel
+        After=network.target
+
+        [Service]
+        Type=simple
+        WorkingDirectory={base}
+        EnvironmentFile={env_path}
+        ExecStart={venv}/bin/python -m uvicorn pTblock.panel_app:app --host 0.0.0.0 --port {port}
+        Restart=on-failure
+
+        [Install]
+        WantedBy=multi-user.target
+        """
+    ).strip() + "\n"
+    service_path = base / "tblock-panel.service"
+    service_path.write_text(service, encoding="utf-8")
+    return service_path
+
+
 def install_service_unit(service_path: Path):
     target = Path("/etc/systemd/system/tblock-watcher.service")
     cmds = [
@@ -528,6 +551,8 @@ def main():
         "TBLOCK_TOKEN": token,
         "VALIDATOR_URL": VALIDATOR_URL,
         "VPS_IP": vps_ip,
+        "BAN_DB": "data/bans.db",
+        "PANEL_PORT": "2374",
     }
     env_path.write_text("\n".join(f"{k}={v}" for k, v in env_values.items()) + "\n", encoding="utf-8")
     print(f"{GREEN}✓ Saved configuration to {env_path}{RESET}")
@@ -536,10 +561,12 @@ def main():
     data_dir.mkdir(exist_ok=True)
     install_requirements(venv, base)
     service_path = write_service(base, venv, env_path)
+    panel_service = write_panel_service(base, venv, env_path, env_values["PANEL_PORT"])
     if install_service_unit(service_path):
         print(f"{GREEN}tblock watcher installed and running.{RESET}")
     else:
         print(f"{YELLOW}Service not fully installed. Manual steps may be required.{RESET}")
+    install_service_unit(panel_service)
     create_cli_menu()
     print(f"{GREEN}You can manage tblock via the 'tblock' command (status/logs/stop/remove).{RESET}")
 
