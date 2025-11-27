@@ -551,7 +551,7 @@ def main():
         "TBLOCK_TOKEN": token,
         "VALIDATOR_URL": VALIDATOR_URL,
         "VPS_IP": vps_ip,
-        "BAN_DB": "data/bans.db",
+        "BAN_DB": str((base / "data" / "bans.db").resolve()),
         "PANEL_PORT": "2374",
     }
     env_path.write_text("\n".join(f"{k}={v}" for k, v in env_values.items()) + "\n", encoding="utf-8")

@@ -99,6 +99,8 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
     tblock_token = os.getenv("TBLOCK_TOKEN") or None
     vps_ip = os.getenv("VPS_IP") or None
     ban_db = Path(os.getenv("BAN_DB", "data/bans.db"))
+    if not ban_db.is_absolute():
+        ban_db = Path(__file__).resolve().parent.parent / ban_db
 
     return Settings(
         log_path=log_path,
