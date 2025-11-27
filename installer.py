@@ -1,0 +1,384 @@
+import getpass
+import json
+import os
+import platform
+import sqlite3
+import subprocess
+import sys
+import textwrap
+from importlib import import_module
+from pathlib import Path
+
+REQUESTS = None
+GREEN = "\033[92m"
+RED = "\033[91m"
+YELLOW = "\033[93m"
+CYAN = "\033[96m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
+
+XUI_DB_PATH = Path("/etc/x-ui/x-ui.db")
+VALIDATOR_URL = "https://whale-app-sdmtd.ondigitalocean.app"
+
+
+def fail(msg: str):
+    print(f"{RED}[!] {msg}{RESET}")
+    sys.exit(1)
+
+
+def banner():
+    art = r"""
+ _   _     _            _       __ _      _           _        _ _           
+| | | |   | |          | |     / _| |    (_)         | |      | | |          
+| |_| |__ | | ___   ___| | __ | |_| | __  _ _ __  ___| |_ __ _| | | ___ _ __ 
+| __| '_ \| |/ _ \ / __| |/ / |  _| |/ / | | '_ \/ __| __/ _` | | |/ _ \ '__|
+| |_| |_) | | (_) | (__|   < _| | |   <  | | | | \__ \ || (_| | | |  __/ |   
+ \__|_.__/|_|\___/ \___|_|\_(_)_| |_|\_\ |_|_| |_|___/\__\__,_|_|_|\___|_|   
+    """
+    print(f"{CYAN}{art}{RESET}")
+    print(f"{BOLD}{GREEN}tblock.fk installer{RESET}  {YELLOW}@dragonforce{RESET}\n")
+
+
+def get_server_ip() -> str:
+    try:
+        result = subprocess.run(
+            ["ip", "route", "get", "1.1.1.1"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        parts = result.stdout.split()
+        for idx, token in enumerate(parts):
+            if token == "src" and idx + 1 < len(parts):
+                return parts[idx + 1]
+    except Exception:
+        pass
+    fallback = subprocess.getoutput("hostname -I").split()
+    return fallback[0] if fallback else "127.0.0.1"
+
+
+def check_ubuntu():
+    if platform.system().lower() != "linux":
+        fail("Only Linux is supported")
+    try:
+        with open("/etc/os-release", "r", encoding="utf-8") as f:
+            data = f.read().lower()
+        if "ubuntu" not in data:
+            fail("Only Ubuntu is supported")
+    except FileNotFoundError:
+        fail("Cannot detect OS; /etc/os-release missing")
+
+
+def check_xui_installed():
+    if not XUI_DB_PATH.exists():
+        fail("3x-ui not detected. Install 3x-ui first.")
+
+
+def check_cert_present():
+    try:
+        conn = sqlite3.connect(XUI_DB_PATH)
+        cur = conn.cursor()
+        cur.execute("select key, value from settings where key in ('webCertFile','webKeyFile')")
+        rows = cur.fetchall()
+        conn.close()
+    except Exception as e:
+        fail(f"Failed to read x-ui settings: {e}")
+    settings = {k: v for k, v in rows}
+    cert = settings.get("webCertFile")
+    key = settings.get("webKeyFile")
+    if not cert or not key:
+        fail("SSL cert/key not configured. Run 3x-ui option 19 to install cert.")
+    if not Path(cert).exists() or not Path(key).exists():
+        fail("Configured SSL cert/key files not found on disk.")
+
+
+def ensure_venv(base: Path) -> Path:
+    venv_path = base / "venv"
+    if not venv_path.exists():
+        try:
+            subprocess.check_call([sys.executable, "-m", "venv", str(venv_path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except subprocess.CalledProcessError as e:
+            print("[!] Creating virtualenv failed. Attempting to install python3-venv ...")
+            installer = ["apt-get", "install", "-y", "python3-venv"]
+            if os.geteuid() != 0:
+                installer.insert(0, "sudo")
+            try:
+                subprocess.check_call(installer, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.check_call([sys.executable, "-m", "venv", str(venv_path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception:
+                fail("Creating virtualenv failed. Install python3-venv (e.g., sudo apt-get install -y python3-venv) and rerun.")
+    return venv_path
+
+
+def run_pip(venv: Path, packages):
+    pip = venv / "bin" / "pip"
+    if not pip.exists():
+        py = venv / "bin" / "python"
+        try:
+            subprocess.check_call([str(py), "-m", "ensurepip", "--upgrade"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            fail("pip is missing in the virtualenv. Install python3-venv and python3-pip, then rerun.")
+    if not pip.exists():
+        fail("pip is missing in the virtualenv. Install python3-venv and python3-pip, then rerun.")
+    subprocess.check_call([str(pip), "install", "--upgrade", "pip"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.check_call([str(pip), "install"] + packages, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def load_requests(venv: Path):
+    major, minor = sys.version_info[:2]
+    site_packages = venv / "lib" / f"python{major}.{minor}" / "site-packages"
+    if site_packages.exists() and str(site_packages) not in sys.path:
+        sys.path.insert(0, str(site_packages))
+    try:
+        return import_module("requests")
+    except ImportError as e:
+        fail(f"requests not available even after install: {e}")
+
+
+def get_public_ip() -> str:
+    try:
+        resp = REQUESTS.get("https://api.ipify.org?format=json", timeout=8)
+        resp.raise_for_status()
+        return resp.json().get("ip")
+    except Exception as e:
+        fail(f"Could not determine public IP: {e}")
+
+
+def validate_with_backend(token: str, vps_ip: str, hostname: str | None = None):
+    if not VALIDATOR_URL:
+        fail("VALIDATOR_URL not set")
+    payload = {"token": token, "vps_ip": vps_ip, "hostname": hostname or ""}
+    try:
+        resp = REQUESTS.post(VALIDATOR_URL.rstrip("/") + "/validate", data=json.dumps(payload), headers={"Content-Type": "application/json"}, timeout=10)
+        if resp.status_code >= 400:
+            msg = ""
+            if resp.headers.get("content-type", "").startswith("application/json"):
+                data = resp.json()
+                if isinstance(data, dict):
+                    if "detail" in data:
+                        msg = data["detail"]
+                    elif "message" in data:
+                        msg = data["message"]
+                elif isinstance(data, list):
+                    msg = "; ".join([item.get("msg", str(item)) for item in data if isinstance(item, dict)]) or str(data)
+            else:
+                msg = resp.text
+            fail(f"Token check failed: {msg or 'unknown error'}")
+        return resp.json()
+    except Exception as e:
+        fail(f"Token check failed: {e}")
+
+
+def load_xui_config():
+    try:
+        conn = sqlite3.connect(XUI_DB_PATH)
+        cur = conn.cursor()
+        cur.execute("select key, value from settings where key in ('webPort','webBasePath','webCertFile','webKeyFile','twoFactorToken')")
+        settings_rows = cur.fetchall()
+        cur.execute("select username from users limit 1")
+        user_row = cur.fetchone()
+        conn.close()
+    except Exception as e:
+        fail(f"Failed to read x-ui settings: {e}")
+    settings = {k: v for k, v in settings_rows}
+    port = settings.get("webPort")
+    base = settings.get("webBasePath")
+    cert = settings.get("webCertFile")
+    twofa = settings.get("twoFactorToken") or ""
+    if not port or not base or not cert:
+        fail("Missing port/base/cert settings in x-ui database.")
+    try:
+        domain = Path(cert).parent.name
+    except Exception:
+        domain = ""
+    if not domain:
+        fail("Could not determine domain from cert path.")
+    username = user_row[0] if user_row else ""
+    if not username:
+        fail("Could not find a panel username in users table.")
+    return {
+        "port": str(port),
+        "base": "/" + str(base).lstrip("/"),
+        "cert": cert,
+        "domain": domain,
+        "username": username,
+        "twofa": twofa,
+    }
+
+
+def verify_wasender(api_key: str) -> bool:
+    try:
+        resp = REQUESTS.get(
+            "https://www.wasenderapi.com/api/whatsapp-sessions",
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=10,
+        )
+        data = resp.json()
+        if resp.status_code == 200 and isinstance(data, dict) and data.get("success") and data.get("data"):
+            return True
+        return False
+    except Exception:
+        return False
+
+
+def ensure_access_log(log_path: Path):
+    while True:
+        if log_path.exists():
+            print(f"{GREEN}✓ Found access log at {log_path}{RESET}")
+            return
+        print(f"{YELLOW}Access log not found at {log_path}{RESET}")
+        print("Enable logging in 3x-ui (Panel -> Settings -> Logs) and ensure access log is on.")
+        ans = input(f"{CYAN}Have you enabled the log? (y/n): {RESET}").strip().lower()
+        if ans == "y":
+            continue
+        else:
+            print(f"{YELLOW}Waiting for log to be enabled...{RESET}")
+
+
+def install_requirements(venv: Path, base: Path):
+    req = base / "requirements.txt"
+    if not req.exists():
+        req.write_text("requests\npython-dotenv\n", encoding="utf-8")
+    pip = venv / "bin" / "pip"
+    subprocess.check_call([str(pip), "install", "-r", str(req)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def write_service(base: Path, venv: Path, env_path: Path):
+    service = textwrap.dedent(
+        f"""
+        [Unit]
+        Description=tblock.fk watcher
+        After=network.target
+
+        [Service]
+        Type=simple
+        WorkingDirectory={base}
+        EnvironmentFile={env_path}
+        ExecStart={venv}/bin/python pTblock/torrent_watch.py
+        Restart=on-failure
+
+        [Install]
+        WantedBy=multi-user.target
+        """
+    ).strip() + "\n"
+    service_path = base / "tblock-watcher.service"
+    service_path.write_text(service, encoding="utf-8")
+    return service_path
+
+
+def install_service_unit(service_path: Path):
+    target = Path("/etc/systemd/system/tblock-watcher.service")
+    cmds = [
+        (["cp", str(service_path), str(target)], "copy service"),
+        (["systemctl", "daemon-reload"], "daemon-reload"),
+        (["systemctl", "enable", "--now", "tblock-watcher.service"], "enable/start service"),
+    ]
+    for cmd, desc in cmds:
+        final = cmd if os.geteuid() == 0 else ["sudo"] + cmd
+        try:
+            subprocess.check_call(final, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"{GREEN}✓ {desc}{RESET}")
+        except subprocess.CalledProcessError as e:
+            print(f"{YELLOW}! Failed to {desc}: {e}{RESET}")
+            return False
+    return True
+
+
+def main():
+    base = Path(__file__).resolve().parent
+    banner()
+    check_ubuntu()
+    print(f"{GREEN}✓ Ubuntu detected{RESET}")
+    check_xui_installed()
+    print(f"{GREEN}✓ 3x-ui detected{RESET}")
+    check_cert_present()
+    print(f"{GREEN}✓ SSL certificate found{RESET}")
+    xui = load_xui_config()
+
+    venv = ensure_venv(base)
+    run_pip(venv, ["requests"])
+    global REQUESTS
+    REQUESTS = load_requests(venv)
+
+    token = getpass.getpass("Enter your TBlock token: ").strip()
+    if not token:
+        fail("Token is required")
+    if len(token) < 4:
+        fail("Token must be at least 4 characters")
+
+    vps_ip = get_public_ip()
+    hostname = subprocess.getoutput("hostname") or None
+    print(f"{CYAN}Validating token for IP {vps_ip}...{RESET}")
+    result = validate_with_backend(token, vps_ip, hostname)
+    print(f"{GREEN}✓ Token validated{RESET} (remaining slots: {result.get('remaining_slots')})")
+    print(f"{YELLOW}Gathering panel details...{RESET}")
+
+    panel_pass = getpass.getpass(f"Enter password for panel user '{xui['username']}': ").strip()
+    if not panel_pass:
+        fail("Panel password is required")
+    twofa = xui.get("twofa", "")
+
+    wa_enabled = False
+    wa_key = ""
+    wa_channel = ""
+    ans = input(f"{CYAN}Send suspension notices to WhatsApp channel? (y/n): {RESET}").strip().lower()
+    if ans == "y":
+        print(f"{YELLOW}Provide your Wasender API key. Learn more: https://wasenderapi.com/api-docs{RESET}")
+        for attempt in range(3):
+            wa_key_try = getpass.getpass("Wasender API key: ").strip()
+            if not wa_key_try:
+                print(f"{YELLOW}API key required.{RESET}")
+                continue
+            print(f"{CYAN}Validating Wasender API key...{RESET}")
+            if verify_wasender(wa_key_try):
+                wa_key = wa_key_try
+                wa_enabled = True
+                break
+            else:
+                print(f"{RED}Validation failed. Ensure you have at least one connected session.{RESET}")
+        if wa_enabled:
+            wa_channel = input(f"{CYAN}WhatsApp channel/number to notify (e.g., +94XXXXXXXXX): {RESET}").strip()
+            if not wa_channel:
+                print(f"{YELLOW}Channel not provided; WhatsApp notifications disabled.{RESET}")
+                wa_enabled = False
+        else:
+            print(f"{YELLOW}Skipping WhatsApp automation. Contact 075 126 7252 for help if needed.{RESET}")
+
+    log_path = Path("/usr/local/x-ui/access.log")
+    ensure_access_log(log_path)
+
+    env_path = base / ".env"
+    server_ip = get_server_ip()
+    env_values = {
+        "XRAY_LOG_PATH": str(log_path),
+        "XRAY_OFFENDER_FILE": "data/torrent-offenders.txt",
+        "XRAY_PANEL_SCHEME": "https",
+        "XRAY_PANEL_HOST": xui["domain"],
+        "XRAY_PANEL_PORT": xui["port"],
+        "XRAY_PANEL_BASE": xui["base"],
+        "XRAY_PANEL_USER": xui["username"],
+        "XRAY_PANEL_PASS": panel_pass,
+        "XRAY_PANEL_2FA": twofa,
+        "TORRENT_LOG_FILE": "data/ban_log.json",
+        "TORRENT_POLL_INTERVAL": "1.0",
+        "WEBHOOK_ALLOWED_ORIGINS": xui["domain"],
+        "WEBHOOK_ALLOWED_IPS": server_ip,
+        "WASENDER_ENABLED": "1" if wa_enabled else "0",
+        "WASENDER_API_KEY": wa_key,
+        "WASENDER_CHANNEL": wa_channel,
+    }
+    env_path.write_text("\n".join(f"{k}={v}" for k, v in env_values.items()) + "\n", encoding="utf-8")
+    print(f"{GREEN}✓ Saved configuration to {env_path}{RESET}")
+    print(f"{YELLOW}Proceeding with tblock core install...{RESET}")
+    data_dir = base / "data"
+    data_dir.mkdir(exist_ok=True)
+    install_requirements(venv, base)
+    service_path = write_service(base, venv, env_path)
+    if install_service_unit(service_path):
+        print(f"{GREEN}tblock watcher installed and running.{RESET}")
+    else:
+        print(f"{YELLOW}Service not fully installed. Manual steps may be required.{RESET}")
+
+
+if __name__ == "__main__":
+    main()

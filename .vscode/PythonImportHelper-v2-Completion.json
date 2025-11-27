@@ -1,0 +1,181 @@
+[
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "platform",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "platform",
+        "description": "platform",
+        "detail": "platform",
+        "documentation": {}
+    },
+    {
+        "label": "sqlite3",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sqlite3",
+        "description": "sqlite3",
+        "detail": "sqlite3",
+        "documentation": {}
+    },
+    {
+        "label": "subprocess",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "subprocess",
+        "description": "subprocess",
+        "detail": "subprocess",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
+        "label": "fail",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def fail(msg: str):\n    print(f\"[!] {msg}\")\n    sys.exit(1)\ndef check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:\n        with open(\"/etc/os-release\", \"r\", encoding=\"utf-8\") as f:\n            data = f.read().lower()\n        if \"ubuntu\" not in data:",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "check_ubuntu",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:\n        with open(\"/etc/os-release\", \"r\", encoding=\"utf-8\") as f:\n            data = f.read().lower()\n        if \"ubuntu\" not in data:\n            fail(\"Only Ubuntu is supported\")\n    except FileNotFoundError:\n        fail(\"Cannot detect OS; /etc/os-release missing\")",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "check_xui_installed",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def check_xui_installed():\n    if not XUI_DB_PATH.exists():\n        fail(\"3x-ui not detected. Install 3x-ui first.\")\ndef check_cert_present():\n    try:\n        conn = sqlite3.connect(XUI_DB_PATH)\n        cur = conn.cursor()\n        cur.execute(SETTINGS_QUERY)\n        row = cur.fetchone()\n        conn.close()",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "check_cert_present",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def check_cert_present():\n    try:\n        conn = sqlite3.connect(XUI_DB_PATH)\n        cur = conn.cursor()\n        cur.execute(SETTINGS_QUERY)\n        row = cur.fetchone()\n        conn.close()\n    except Exception as e:\n        fail(f\"Failed to read x-ui settings: {e}\")\n    if not row:",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "ensure_venv",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def ensure_venv(base: Path) -> Path:\n    venv_path = base / \"venv\"\n    if not venv_path.exists():\n        subprocess.check_call([sys.executable, \"-m\", \"venv\", str(venv_path)])\n    return venv_path\ndef run_pip(venv: Path, packages):\n    pip = venv / \"bin\" / \"pip\"\n    subprocess.check_call([str(pip), \"install\", \"--upgrade\", \"pip\"])\n    subprocess.check_call([str(pip), \"install\"] + packages)\ndef get_public_ip() -> str:",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "run_pip",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def run_pip(venv: Path, packages):\n    pip = venv / \"bin\" / \"pip\"\n    subprocess.check_call([str(pip), \"install\", \"--upgrade\", \"pip\"])\n    subprocess.check_call([str(pip), \"install\"] + packages)\ndef get_public_ip() -> str:\n    try:\n        resp = requests.get(\"https://api.ipify.org?format=json\", timeout=8)\n        resp.raise_for_status()\n        return resp.json().get(\"ip\")\n    except Exception as e:",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "get_public_ip",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def get_public_ip() -> str:\n    try:\n        resp = requests.get(\"https://api.ipify.org?format=json\", timeout=8)\n        resp.raise_for_status()\n        return resp.json().get(\"ip\")\n    except Exception as e:\n        fail(f\"Could not determine public IP: {e}\")\ndef validate_with_backend(token: str, vps_ip: str, hostname: str | None = None):\n    if not VALIDATOR_URL:\n        fail(\"VALIDATOR_URL not set\")",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "validate_with_backend",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def validate_with_backend(token: str, vps_ip: str, hostname: str | None = None):\n    if not VALIDATOR_URL:\n        fail(\"VALIDATOR_URL not set\")\n    payload = {\"token\": token, \"vps_ip\": vps_ip, \"hostname\": hostname or \"\"}\n    try:\n        resp = requests.post(VALIDATOR_URL.rstrip(\"/\") + \"/validate\", data=json.dumps(payload), headers={\"Content-Type\": \"application/json\"}, timeout=10)\n        if resp.status_code >= 400:\n            msg = resp.json().get(\"detail\") if resp.headers.get(\"content-type\", \"\").startswith(\"application/json\") else resp.text\n            fail(f\"Token check failed: {msg}\")\n        return resp.json()",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def main():\n    base = Path(__file__).resolve().parent\n    check_ubuntu()\n    check_xui_installed()\n    check_cert_present()\n    venv = ensure_venv(base)\n    run_pip(venv, [\"requests\"])\n    token = input(\"Enter your TBlock token: \").strip()\n    if not token:\n        fail(\"Token is required\")",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "XUI_DB_PATH",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "XUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nSETTINGS_QUERY = \"select webCertFile, webKeyFile from settings limit 1\"\nVALIDATOR_URL = os.environ.get(\"VALIDATOR_URL\")\ndef fail(msg: str):\n    print(f\"[!] {msg}\")\n    sys.exit(1)\ndef check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "SETTINGS_QUERY",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "SETTINGS_QUERY = \"select webCertFile, webKeyFile from settings limit 1\"\nVALIDATOR_URL = os.environ.get(\"VALIDATOR_URL\")\ndef fail(msg: str):\n    print(f\"[!] {msg}\")\n    sys.exit(1)\ndef check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:\n        with open(\"/etc/os-release\", \"r\", encoding=\"utf-8\") as f:",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "VALIDATOR_URL",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "VALIDATOR_URL = os.environ.get(\"VALIDATOR_URL\")\ndef fail(msg: str):\n    print(f\"[!] {msg}\")\n    sys.exit(1)\ndef check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:\n        with open(\"/etc/os-release\", \"r\", encoding=\"utf-8\") as f:\n            data = f.read().lower()",
+        "detail": "installer",
+        "documentation": {}
+    }
+]
