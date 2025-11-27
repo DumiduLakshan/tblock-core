@@ -1,5 +1,22 @@
 [
     {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "argparse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "argparse",
+        "description": "argparse",
+        "detail": "argparse",
+        "documentation": {}
+    },
+    {
         "label": "json",
         "kind": 6,
         "isExtraImport": true,
@@ -9,12 +26,154 @@
         "documentation": {}
     },
     {
+        "label": "logging",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "logging",
+        "description": "logging",
+        "detail": "logging",
+        "documentation": {}
+    },
+    {
         "label": "os",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "os",
         "description": "os",
         "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "signal",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "signal",
+        "description": "signal",
+        "detail": "signal",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "dataclass",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Dict",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Iterable",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Tuple",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "getpass",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "getpass",
+        "description": "getpass",
+        "detail": "getpass",
         "documentation": {}
     },
     {
@@ -45,29 +204,155 @@
         "documentation": {}
     },
     {
-        "label": "sys",
+        "label": "textwrap",
         "kind": 6,
         "isExtraImport": true,
-        "importPath": "sys",
-        "description": "sys",
-        "detail": "sys",
+        "importPath": "textwrap",
+        "description": "textwrap",
+        "detail": "textwrap",
         "documentation": {}
     },
     {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
+        "label": "import_module",
+        "importPath": "importlib",
+        "description": "importlib",
         "isExtraImport": true,
-        "detail": "pathlib",
+        "detail": "importlib",
         "documentation": {}
     },
     {
-        "label": "requests",
+        "label": "Settings",
         "kind": 6,
-        "isExtraImport": true,
-        "importPath": "requests",
-        "description": "requests",
-        "detail": "requests",
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "class Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str\n    panel_port: int\n    panel_base_path: str\n    username: str\n    password: str\n    two_factor: Optional[str]",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "XuiClient",
+        "kind": 6,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "class XuiClient:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.session = requests.Session()\n        self.login()\n    def login(self) -> None:\n        payload: Dict[str, Any] = {\n            \"username\": self.settings.username,\n            \"password\": self.settings.password,\n        }",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "BanLog",
+        "kind": 6,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "class BanLog:\n    def __init__(self, path: Path):\n        self.path = path\n        self.path.parent.mkdir(parents=True, exist_ok=True)\n        self.entries = self._load()\n    def _load(self) -> list[Dict[str, Any]]:\n        if not self.path.exists():\n            return []\n        try:\n            content = json.loads(self.path.read_text())",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "WebhookNotifier",
+        "kind": 6,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "class WebhookNotifier:\n    def __init__(self, url: Optional[str], token: Optional[str]):\n        self.url = url\n        self.token = token\n    def notify(self, payload: Dict[str, Any]) -> None:\n        if not self.url:\n            return\n        headers = {\"Content-Type\": \"application/json\"}\n        if self.token:\n            headers[\"X-Webhook-Token\"] = self.token",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "TorrentWatcher",
+        "kind": 6,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "class TorrentWatcher:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.xui = XuiClient(settings)\n        self.log = BanLog(settings.log_file)\n        self.notifier = WebhookNotifier(settings.webhook_url, settings.webhook_token)\n        self.output_file = settings.output_file\n        self.output_file.parent.mkdir(parents=True, exist_ok=True)\n        self.stop_requested = False\n        self.processed_emails: set[str] = set()",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "load_settings",
+        "kind": 2,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "def load_settings(env_path: Optional[Path] = None) -> Settings:\n    if env_path:\n        load_dotenv(env_path)\n    else:\n        load_dotenv()\n    def must_get(key: str) -> str:\n        val = os.getenv(key)\n        if not val:\n            raise RuntimeError(f\"Missing required environment variable {key}\")\n        return val",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "follow_file",
+        "kind": 2,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "def follow_file(path: Path) -> Iterable[str]:\n    with path.open(\"r\", encoding=\"utf-8\", errors=\"ignore\") as fh:\n        fh.seek(0, os.SEEK_END)\n        while True:\n            line = fh.readline()\n            if not line:\n                yield \"\"\n            else:\n                yield line\ndef parse_line(line: str) -> Tuple[Optional[str], Optional[str], str]:",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "parse_line",
+        "kind": 2,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str]:\n    parts = line.strip().split()\n    if len(parts) < 5:\n        return None, None, \"\"\n    timestamp = \" \".join(parts[:2])\n    ip_section = next((p for p in parts if p.startswith(\"from\")), None)\n    email_idx = next((i for i, p in enumerate(parts) if p == \"email:\"), None)\n    ip = None\n    if ip_section:\n        idx = parts.index(ip_section)",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "kind": 2,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "def setup_logging() -> None:\n    handler = logging.StreamHandler(sys.stdout)\n    handler.setFormatter(logging.Formatter(\"[%(asctime)s] %(levelname)s %(message)s\"))\n    LOG.addHandler(handler)\n    LOG.setLevel(logging.INFO)\nclass TorrentWatcher:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.xui = XuiClient(settings)\n        self.log = BanLog(settings.log_file)",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "parse_args",
+        "kind": 2,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "def parse_args() -> argparse.Namespace:\n    parser = argparse.ArgumentParser(description=\"Torrent watcher daemon\")\n    parser.add_argument(\n        \"--env-file\",\n        help=\"Path to .env file (defaults to .env in repo root)\",\n    )\n    return parser.parse_args()\ndef main() -> int:\n    setup_logging()\n    args = parse_args()",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "def main() -> int:\n    setup_logging()\n    args = parse_args()\n    env_path = Path(args.env_file) if args.env_file else None\n    settings = load_settings(env_path)\n    watcher = TorrentWatcher(settings)\n    watcher.run()\n    LOG.info(\"Watcher stopped\")\n    return 0\nif __name__ == \"__main__\":",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "LOG",
+        "kind": 5,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "LOG = logging.getLogger(\"torrent_watch\")\nBLOCK_MARKERS = (\"-> blocked\", \">> blocked\", \"[block]\")\nDEFAULT_OUTPUT = \"data/torrent-offenders.txt\"\nDEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "BLOCK_MARKERS",
+        "kind": 5,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "BLOCK_MARKERS = (\"-> blocked\", \">> blocked\", \"[block]\")\nDEFAULT_OUTPUT = \"data/torrent-offenders.txt\"\nDEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str\n    panel_port: int",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "DEFAULT_OUTPUT",
+        "kind": 5,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "DEFAULT_OUTPUT = \"data/torrent-offenders.txt\"\nDEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str\n    panel_port: int\n    panel_base_path: str",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "DEFAULT_LOG_DB",
+        "kind": 5,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "DEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str\n    panel_port: int\n    panel_base_path: str\n    username: str",
+        "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
     {
@@ -75,7 +360,25 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def fail(msg: str):\n    print(f\"[!] {msg}\")\n    sys.exit(1)\ndef check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:\n        with open(\"/etc/os-release\", \"r\", encoding=\"utf-8\") as f:\n            data = f.read().lower()\n        if \"ubuntu\" not in data:",
+        "peekOfCode": "def fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          \n| |_| |__ | | ___   ___| | __ | |_| | __  _ _ __  ___| |_ __ _| | | ___ _ __ \n| __| '_ \\| |/ _ \\ / __| |/ / |  _| |/ / | | '_ \\/ __| __/ _` | | |/ _ \\ '__|\n| |_| |_) | | (_) | (__|   < _| | |   <  | | | | \\__ \\ || (_| | | |  __/ |   ",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "banner",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          \n| |_| |__ | | ___   ___| | __ | |_| | __  _ _ __  ___| |_ __ _| | | ___ _ __ \n| __| '_ \\| |/ _ \\ / __| |/ / |  _| |/ / | | '_ \\/ __| __/ _` | | |/ _ \\ '__|\n| |_| |_) | | (_) | (__|   < _| | |   <  | | | | \\__ \\ || (_| | | |  __/ |   \n \\__|_.__/|_|\\___/ \\___|_|\\_(_)_| |_|\\_\\ |_|_| |_|___/\\__\\__,_|_|_|\\___|_|   \n    \"\"\"\n    print(f\"{CYAN}{art}{RESET}\")",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "get_server_ip",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def get_server_ip() -> str:\n    try:\n        result = subprocess.run(\n            [\"ip\", \"route\", \"get\", \"1.1.1.1\"],\n            check=True,\n            capture_output=True,\n            text=True,\n        )\n        parts = result.stdout.split()\n        for idx, token in enumerate(parts):",
         "detail": "installer",
         "documentation": {}
     },
@@ -93,7 +396,7 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def check_xui_installed():\n    if not XUI_DB_PATH.exists():\n        fail(\"3x-ui not detected. Install 3x-ui first.\")\ndef check_cert_present():\n    try:\n        conn = sqlite3.connect(XUI_DB_PATH)\n        cur = conn.cursor()\n        cur.execute(SETTINGS_QUERY)\n        row = cur.fetchone()\n        conn.close()",
+        "peekOfCode": "def check_xui_installed():\n    if not XUI_DB_PATH.exists():\n        fail(\"3x-ui not detected. Install 3x-ui first.\")\ndef check_cert_present():\n    try:\n        conn = sqlite3.connect(XUI_DB_PATH)\n        cur = conn.cursor()\n        cur.execute(\"select key, value from settings where key in ('webCertFile','webKeyFile')\")\n        rows = cur.fetchall()\n        conn.close()",
         "detail": "installer",
         "documentation": {}
     },
@@ -102,7 +405,7 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def check_cert_present():\n    try:\n        conn = sqlite3.connect(XUI_DB_PATH)\n        cur = conn.cursor()\n        cur.execute(SETTINGS_QUERY)\n        row = cur.fetchone()\n        conn.close()\n    except Exception as e:\n        fail(f\"Failed to read x-ui settings: {e}\")\n    if not row:",
+        "peekOfCode": "def check_cert_present():\n    try:\n        conn = sqlite3.connect(XUI_DB_PATH)\n        cur = conn.cursor()\n        cur.execute(\"select key, value from settings where key in ('webCertFile','webKeyFile')\")\n        rows = cur.fetchall()\n        conn.close()\n    except Exception as e:\n        fail(f\"Failed to read x-ui settings: {e}\")\n    settings = {k: v for k, v in rows}",
         "detail": "installer",
         "documentation": {}
     },
@@ -111,7 +414,7 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def ensure_venv(base: Path) -> Path:\n    venv_path = base / \"venv\"\n    if not venv_path.exists():\n        subprocess.check_call([sys.executable, \"-m\", \"venv\", str(venv_path)])\n    return venv_path\ndef run_pip(venv: Path, packages):\n    pip = venv / \"bin\" / \"pip\"\n    subprocess.check_call([str(pip), \"install\", \"--upgrade\", \"pip\"])\n    subprocess.check_call([str(pip), \"install\"] + packages)\ndef get_public_ip() -> str:",
+        "peekOfCode": "def ensure_venv(base: Path) -> Path:\n    venv_path = base / \"venv\"\n    if not venv_path.exists():\n        try:\n            subprocess.check_call([sys.executable, \"-m\", \"venv\", str(venv_path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n        except subprocess.CalledProcessError as e:\n            print(\"[!] Creating virtualenv failed. Attempting to install python3-venv ...\")\n            installer = [\"apt-get\", \"install\", \"-y\", \"python3-venv\"]\n            if os.geteuid() != 0:\n                installer.insert(0, \"sudo\")",
         "detail": "installer",
         "documentation": {}
     },
@@ -120,7 +423,16 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def run_pip(venv: Path, packages):\n    pip = venv / \"bin\" / \"pip\"\n    subprocess.check_call([str(pip), \"install\", \"--upgrade\", \"pip\"])\n    subprocess.check_call([str(pip), \"install\"] + packages)\ndef get_public_ip() -> str:\n    try:\n        resp = requests.get(\"https://api.ipify.org?format=json\", timeout=8)\n        resp.raise_for_status()\n        return resp.json().get(\"ip\")\n    except Exception as e:",
+        "peekOfCode": "def run_pip(venv: Path, packages):\n    pip = venv / \"bin\" / \"pip\"\n    if not pip.exists():\n        py = venv / \"bin\" / \"python\"\n        try:\n            subprocess.check_call([str(py), \"-m\", \"ensurepip\", \"--upgrade\"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n        except Exception:\n            fail(\"pip is missing in the virtualenv. Install python3-venv and python3-pip, then rerun.\")\n    if not pip.exists():\n        fail(\"pip is missing in the virtualenv. Install python3-venv and python3-pip, then rerun.\")",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "load_requests",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def load_requests(venv: Path):\n    major, minor = sys.version_info[:2]\n    site_packages = venv / \"lib\" / f\"python{major}.{minor}\" / \"site-packages\"\n    if site_packages.exists() and str(site_packages) not in sys.path:\n        sys.path.insert(0, str(site_packages))\n    try:\n        return import_module(\"requests\")\n    except ImportError as e:\n        fail(f\"requests not available even after install: {e}\")\ndef get_public_ip() -> str:",
         "detail": "installer",
         "documentation": {}
     },
@@ -129,7 +441,7 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def get_public_ip() -> str:\n    try:\n        resp = requests.get(\"https://api.ipify.org?format=json\", timeout=8)\n        resp.raise_for_status()\n        return resp.json().get(\"ip\")\n    except Exception as e:\n        fail(f\"Could not determine public IP: {e}\")\ndef validate_with_backend(token: str, vps_ip: str, hostname: str | None = None):\n    if not VALIDATOR_URL:\n        fail(\"VALIDATOR_URL not set\")",
+        "peekOfCode": "def get_public_ip() -> str:\n    try:\n        resp = REQUESTS.get(\"https://api.ipify.org?format=json\", timeout=8)\n        resp.raise_for_status()\n        return resp.json().get(\"ip\")\n    except Exception as e:\n        fail(f\"Could not determine public IP: {e}\")\ndef validate_with_backend(token: str, vps_ip: str, hostname: str | None = None):\n    if not VALIDATOR_URL:\n        fail(\"VALIDATOR_URL not set\")",
         "detail": "installer",
         "documentation": {}
     },
@@ -138,7 +450,61 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def validate_with_backend(token: str, vps_ip: str, hostname: str | None = None):\n    if not VALIDATOR_URL:\n        fail(\"VALIDATOR_URL not set\")\n    payload = {\"token\": token, \"vps_ip\": vps_ip, \"hostname\": hostname or \"\"}\n    try:\n        resp = requests.post(VALIDATOR_URL.rstrip(\"/\") + \"/validate\", data=json.dumps(payload), headers={\"Content-Type\": \"application/json\"}, timeout=10)\n        if resp.status_code >= 400:\n            msg = resp.json().get(\"detail\") if resp.headers.get(\"content-type\", \"\").startswith(\"application/json\") else resp.text\n            fail(f\"Token check failed: {msg}\")\n        return resp.json()",
+        "peekOfCode": "def validate_with_backend(token: str, vps_ip: str, hostname: str | None = None):\n    if not VALIDATOR_URL:\n        fail(\"VALIDATOR_URL not set\")\n    payload = {\"token\": token, \"vps_ip\": vps_ip, \"hostname\": hostname or \"\"}\n    try:\n        resp = REQUESTS.post(VALIDATOR_URL.rstrip(\"/\") + \"/validate\", data=json.dumps(payload), headers={\"Content-Type\": \"application/json\"}, timeout=10)\n        if resp.status_code >= 400:\n            msg = \"\"\n            if resp.headers.get(\"content-type\", \"\").startswith(\"application/json\"):\n                data = resp.json()",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "load_xui_config",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def load_xui_config():\n    try:\n        conn = sqlite3.connect(XUI_DB_PATH)\n        cur = conn.cursor()\n        cur.execute(\"select key, value from settings where key in ('webPort','webBasePath','webCertFile','webKeyFile','twoFactorToken')\")\n        settings_rows = cur.fetchall()\n        cur.execute(\"select username from users limit 1\")\n        user_row = cur.fetchone()\n        conn.close()\n    except Exception as e:",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "verify_wasender",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def verify_wasender(api_key: str) -> bool:\n    try:\n        resp = REQUESTS.get(\n            \"https://www.wasenderapi.com/api/whatsapp-sessions\",\n            headers={\"Authorization\": f\"Bearer {api_key}\"},\n            timeout=10,\n        )\n        data = resp.json()\n        if resp.status_code == 200 and isinstance(data, dict) and data.get(\"success\") and data.get(\"data\"):\n            return True",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "ensure_access_log",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def ensure_access_log(log_path: Path):\n    while True:\n        if log_path.exists():\n            print(f\"{GREEN}✓ Found access log at {log_path}{RESET}\")\n            return\n        print(f\"{YELLOW}Access log not found at {log_path}{RESET}\")\n        print(\"Enable logging in 3x-ui (Panel -> Settings -> Logs) and ensure access log is on.\")\n        ans = input(f\"{CYAN}Have you enabled the log? (y/n): {RESET}\").strip().lower()\n        if ans == \"y\":\n            continue",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "install_requirements",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def install_requirements(venv: Path, base: Path):\n    req = base / \"requirements.txt\"\n    if not req.exists():\n        req.write_text(\"requests\\npython-dotenv\\n\", encoding=\"utf-8\")\n    pip = venv / \"bin\" / \"pip\"\n    subprocess.check_call([str(pip), \"install\", \"-r\", str(req)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\ndef write_service(base: Path, venv: Path, env_path: Path):\n    service = textwrap.dedent(\n        f\"\"\"\n        [Unit]",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "write_service",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def write_service(base: Path, venv: Path, env_path: Path):\n    service = textwrap.dedent(\n        f\"\"\"\n        [Unit]\n        Description=tblock.fk watcher\n        After=network.target\n        [Service]\n        Type=simple\n        WorkingDirectory={base}\n        EnvironmentFile={env_path}",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "install_service_unit",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def install_service_unit(service_path: Path):\n    target = Path(\"/etc/systemd/system/tblock-watcher.service\")\n    cmds = [\n        ([\"cp\", str(service_path), str(target)], \"copy service\"),\n        ([\"systemctl\", \"daemon-reload\"], \"daemon-reload\"),\n        ([\"systemctl\", \"enable\", \"--now\", \"tblock-watcher.service\"], \"enable/start service\"),\n    ]\n    for cmd, desc in cmds:\n        final = cmd if os.geteuid() == 0 else [\"sudo\"] + cmd\n        try:",
         "detail": "installer",
         "documentation": {}
     },
@@ -147,7 +513,70 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def main():\n    base = Path(__file__).resolve().parent\n    check_ubuntu()\n    check_xui_installed()\n    check_cert_present()\n    venv = ensure_venv(base)\n    run_pip(venv, [\"requests\"])\n    token = input(\"Enter your TBlock token: \").strip()\n    if not token:\n        fail(\"Token is required\")",
+        "peekOfCode": "def main():\n    base = Path(__file__).resolve().parent\n    banner()\n    check_ubuntu()\n    print(f\"{GREEN}✓ Ubuntu detected{RESET}\")\n    check_xui_installed()\n    print(f\"{GREEN}✓ 3x-ui detected{RESET}\")\n    check_cert_present()\n    print(f\"{GREEN}✓ SSL certificate found{RESET}\")\n    xui = load_xui_config()",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "REQUESTS",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "REQUESTS = None\nGREEN = \"\\033[92m\"\nRED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "GREEN",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "GREEN = \"\\033[92m\"\nRED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "RED",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "RED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "YELLOW",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "YELLOW = \"\\033[93m\"\nCYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "CYAN",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "CYAN = \"\\033[96m\"\nBOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "BOLD",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "BOLD = \"\\033[1m\"\nRESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           ",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "RESET",
+        "kind": 5,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "RESET = \"\\033[0m\"\nXUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          ",
         "detail": "installer",
         "documentation": {}
     },
@@ -156,16 +585,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "XUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nSETTINGS_QUERY = \"select webCertFile, webKeyFile from settings limit 1\"\nVALIDATOR_URL = os.environ.get(\"VALIDATOR_URL\")\ndef fail(msg: str):\n    print(f\"[!] {msg}\")\n    sys.exit(1)\ndef check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:",
-        "detail": "installer",
-        "documentation": {}
-    },
-    {
-        "label": "SETTINGS_QUERY",
-        "kind": 5,
-        "importPath": "installer",
-        "description": "installer",
-        "peekOfCode": "SETTINGS_QUERY = \"select webCertFile, webKeyFile from settings limit 1\"\nVALIDATOR_URL = os.environ.get(\"VALIDATOR_URL\")\ndef fail(msg: str):\n    print(f\"[!] {msg}\")\n    sys.exit(1)\ndef check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:\n        with open(\"/etc/os-release\", \"r\", encoding=\"utf-8\") as f:",
+        "peekOfCode": "XUI_DB_PATH = Path(\"/etc/x-ui/x-ui.db\")\nVALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          \n| |_| |__ | | ___   ___| | __ | |_| | __  _ _ __  ___| |_ __ _| | | ___ _ __ ",
         "detail": "installer",
         "documentation": {}
     },
@@ -174,7 +594,7 @@
         "kind": 5,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "VALIDATOR_URL = os.environ.get(\"VALIDATOR_URL\")\ndef fail(msg: str):\n    print(f\"[!] {msg}\")\n    sys.exit(1)\ndef check_ubuntu():\n    if platform.system().lower() != \"linux\":\n        fail(\"Only Linux is supported\")\n    try:\n        with open(\"/etc/os-release\", \"r\", encoding=\"utf-8\") as f:\n            data = f.read().lower()",
+        "peekOfCode": "VALIDATOR_URL = \"https://whale-app-sdmtd.ondigitalocean.app\"\ndef fail(msg: str):\n    print(f\"{RED}[!] {msg}{RESET}\")\n    sys.exit(1)\ndef banner():\n    art = r\"\"\"\n _   _     _            _       __ _      _           _        _ _           \n| | | |   | |          | |     / _| |    (_)         | |      | | |          \n| |_| |__ | | ___   ___| | __ | |_| | __  _ _ __  ___| |_ __ _| | | ___ _ __ \n| __| '_ \\| |/ _ \\ / __| |/ / |  _| |/ / | | '_ \\/ __| __/ _` | | |/ _ \\ '__|",
         "detail": "installer",
         "documentation": {}
     }
