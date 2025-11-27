@@ -39,6 +39,9 @@ class Settings:
     ban_hours: int
     poll_interval: float
     log_file: Path
+    wa_enabled: bool
+    wa_api_key: Optional[str]
+    wa_channel: Optional[str]
 
     @property
     def base_url(self) -> str:
@@ -80,6 +83,9 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
     ban_hours = int(os.getenv("TORRENT_BAN_HOURS", "5"))
     poll_interval = float(os.getenv("TORRENT_POLL_INTERVAL", "1.0"))
     log_file = Path(os.getenv("TORRENT_LOG_FILE", DEFAULT_LOG_DB))
+    wa_enabled = os.getenv("WASENDER_ENABLED", "0") == "1" or os.getenv("WHATSAPP_INTEGRATION", "False").lower() == "true"
+    wa_api_key = os.getenv("WASENDER_API_KEY") or None
+    wa_channel = os.getenv("WASENDER_CHANNEL") or None
 
     return Settings(
         log_path=log_path,
@@ -96,6 +102,9 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
         ban_hours=ban_hours,
         poll_interval=poll_interval,
         log_file=log_file,
+        wa_enabled=wa_enabled,
+        wa_api_key=wa_api_key,
+        wa_channel=wa_channel,
     )
 
 
@@ -221,6 +230,48 @@ class WebhookNotifier:
             LOG.error("Failed to notify webhook: %s", exc)
 
 
+class WhatsAppNotifier:
+    def __init__(self, enabled: bool, api_key: Optional[str], channel: Optional[str]):
+        self.enabled = enabled and bool(api_key) and bool(channel)
+        self.api_key = api_key
+        self.channel = channel
+        self.image_url = "https://i.imgur.com/4M7IWwP.png"
+
+    def send_ban(self, email: str, domain: str, hours: int) -> None:
+        if not self.enabled:
+            return
+        payload = {
+            "to": self.channel,
+            "text": (
+                f"🚫 *TBlock Alert*\n"
+                f"• User: `{email}`\n"
+                f"• Reason: torrenting\n"
+                f"• Source: `{domain}`\n"
+                f"• Action: banned for {hours} hours\n"
+                f"• Service: dragonforce"
+            ),
+            "imageUrl": self.image_url,
+        }
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        try:
+            resp = requests.post(
+                "https://www.wasenderapi.com/api/send-message",
+                headers=headers,
+                json=payload,
+                timeout=12,
+            )
+            data = resp.json()
+            if resp.status_code == 200 and data.get("success"):
+                LOG.info("WhatsApp notification sent for %s", email)
+            else:
+                LOG.warning("WhatsApp send failed: %s", data)
+        except Exception as exc:
+            LOG.error("Failed to send WhatsApp notification: %s", exc)
+
+
 def follow_file(path: Path) -> Iterable[str]:
     with path.open("r", encoding="utf-8", errors="ignore") as fh:
         fh.seek(0, os.SEEK_END)
@@ -232,10 +283,10 @@ def follow_file(path: Path) -> Iterable[str]:
                 yield line
 
 
-def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str]:
+def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool]:
     parts = line.strip().split()
-    if len(parts) < 5:
-        return None, None, ""
+    if len(parts) < 6:
+        return None, None, "", None, False
     timestamp = " ".join(parts[:2])
     ip_section = next((p for p in parts if p.startswith("from")), None)
     email_idx = next((i for i, p in enumerate(parts) if p == "email:"), None)
@@ -247,7 +298,19 @@ def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str]:
     email = "UNKNOWN"
     if email_idx is not None and email_idx + 1 < len(parts):
         email = parts[email_idx + 1]
-    return ip, timestamp, email
+    blocked = ">> block" in line.lower()
+    domain = None
+    try:
+        if "accepted" in parts:
+            acc_idx = parts.index("accepted")
+            if acc_idx + 1 < len(parts):
+                target = parts[acc_idx + 1]
+                if ":" in target:
+                    proto, rest = target.split(":", 1)
+                    domain = rest.split(":")[0]
+    except Exception:
+        domain = None
+    return ip, timestamp, email, domain, blocked
 
 
 def setup_logging() -> None:
@@ -263,6 +326,7 @@ class TorrentWatcher:
         self.xui = XuiClient(settings)
         self.log = BanLog(settings.log_file)
         self.notifier = WebhookNotifier(settings.webhook_url, settings.webhook_token)
+        self.wa = WhatsAppNotifier(settings.wa_enabled, settings.wa_api_key, settings.wa_channel)
         self.output_file = settings.output_file
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
         self.stop_requested = False
@@ -326,16 +390,20 @@ class TorrentWatcher:
             low = line.lower()
             if not any(marker in low for marker in BLOCK_MARKERS):
                 continue
-            ip, timestamp, email = parse_line(line)
+            ip, timestamp, email, domain, blocked = parse_line(line)
+            if not blocked:
+                continue
             if not ip or not email or email == "UNKNOWN":
                 continue
             if email in self.processed_emails:
                 continue
-            LOG.info("Detected bittorrent usage from %s (%s)", email, ip)
+            LOG.info("Detected bittorrent usage from %s (%s) via %s", email, ip, domain or "unknown")
             self.write_offender(timestamp or "", ip, email, line)
             try:
                 if self.disable_client(email, ip):
                     self.processed_emails.add(email)
+                    if domain:
+                        self.wa.send_ban(email, domain, self.settings.ban_hours)
             except Exception as exc:
                 LOG.error("Failed to disable %s: %s", email, exc)
 
@@ -346,6 +414,7 @@ def parse_args() -> argparse.Namespace:
         "--env-file",
         help="Path to .env file (defaults to .env in repo root)",
     )
+    parser.add_argument("--debug", action="store_true", help="Verbose logging")
     return parser.parse_args()
 
 
@@ -354,6 +423,8 @@ def main() -> int:
     args = parse_args()
     env_path = Path(args.env_file) if args.env_file else None
     settings = load_settings(env_path)
+    if args.debug:
+        LOG.setLevel(logging.DEBUG)
     watcher = TorrentWatcher(settings)
     watcher.run()
     LOG.info("Watcher stopped")

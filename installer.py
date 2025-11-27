@@ -516,6 +516,7 @@ def main():
         "XRAY_PANEL_PASS": panel_pass,
         "XRAY_PANEL_2FA": twofa,
         "TORRENT_LOG_FILE": "data/ban_log.json",
+        "TORRENT_BAN_HOURS": "5",
         "TORRENT_POLL_INTERVAL": "1.0",
         "WEBHOOK_ALLOWED_ORIGINS": xui["domain"],
         "WEBHOOK_ALLOWED_IPS": server_ip,

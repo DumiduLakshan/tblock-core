@@ -282,11 +282,20 @@
         "documentation": {}
     },
     {
+        "label": "WhatsAppNotifier",
+        "kind": 6,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "class WhatsAppNotifier:\n    def __init__(self, enabled: bool, api_key: Optional[str], channel: Optional[str]):\n        self.enabled = enabled and bool(api_key) and bool(channel)\n        self.api_key = api_key\n        self.channel = channel\n        self.image_url = \"https://i.imgur.com/4M7IWwP.png\"\n    def send_ban(self, email: str, domain: str, hours: int) -> None:\n        if not self.enabled:\n            return\n        payload = {",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
         "label": "TorrentWatcher",
         "kind": 6,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "class TorrentWatcher:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.xui = XuiClient(settings)\n        self.log = BanLog(settings.log_file)\n        self.notifier = WebhookNotifier(settings.webhook_url, settings.webhook_token)\n        self.output_file = settings.output_file\n        self.output_file.parent.mkdir(parents=True, exist_ok=True)\n        self.stop_requested = False\n        self.processed_emails: set[str] = set()",
+        "peekOfCode": "class TorrentWatcher:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.xui = XuiClient(settings)\n        self.log = BanLog(settings.log_file)\n        self.notifier = WebhookNotifier(settings.webhook_url, settings.webhook_token)\n        self.wa = WhatsAppNotifier(settings.wa_enabled, settings.wa_api_key, settings.wa_channel)\n        self.output_file = settings.output_file\n        self.output_file.parent.mkdir(parents=True, exist_ok=True)\n        self.stop_requested = False",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -304,7 +313,7 @@
         "kind": 2,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "def follow_file(path: Path) -> Iterable[str]:\n    with path.open(\"r\", encoding=\"utf-8\", errors=\"ignore\") as fh:\n        fh.seek(0, os.SEEK_END)\n        while True:\n            line = fh.readline()\n            if not line:\n                yield \"\"\n            else:\n                yield line\ndef parse_line(line: str) -> Tuple[Optional[str], Optional[str], str]:",
+        "peekOfCode": "def follow_file(path: Path) -> Iterable[str]:\n    with path.open(\"r\", encoding=\"utf-8\", errors=\"ignore\") as fh:\n        fh.seek(0, os.SEEK_END)\n        while True:\n            line = fh.readline()\n            if not line:\n                yield \"\"\n            else:\n                yield line\ndef parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool]:",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -313,7 +322,7 @@
         "kind": 2,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str]:\n    parts = line.strip().split()\n    if len(parts) < 5:\n        return None, None, \"\"\n    timestamp = \" \".join(parts[:2])\n    ip_section = next((p for p in parts if p.startswith(\"from\")), None)\n    email_idx = next((i for i, p in enumerate(parts) if p == \"email:\"), None)\n    ip = None\n    if ip_section:\n        idx = parts.index(ip_section)",
+        "peekOfCode": "def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool]:\n    parts = line.strip().split()\n    if len(parts) < 6:\n        return None, None, \"\", None, False\n    timestamp = \" \".join(parts[:2])\n    ip_section = next((p for p in parts if p.startswith(\"from\")), None)\n    email_idx = next((i for i, p in enumerate(parts) if p == \"email:\"), None)\n    ip = None\n    if ip_section:\n        idx = parts.index(ip_section)",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -331,7 +340,7 @@
         "kind": 2,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "def parse_args() -> argparse.Namespace:\n    parser = argparse.ArgumentParser(description=\"Torrent watcher daemon\")\n    parser.add_argument(\n        \"--env-file\",\n        help=\"Path to .env file (defaults to .env in repo root)\",\n    )\n    return parser.parse_args()\ndef main() -> int:\n    setup_logging()\n    args = parse_args()",
+        "peekOfCode": "def parse_args() -> argparse.Namespace:\n    parser = argparse.ArgumentParser(description=\"Torrent watcher daemon\")\n    parser.add_argument(\n        \"--env-file\",\n        help=\"Path to .env file (defaults to .env in repo root)\",\n    )\n    parser.add_argument(\"--debug\", action=\"store_true\", help=\"Verbose logging\")\n    return parser.parse_args()\ndef main() -> int:\n    setup_logging()",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -340,7 +349,7 @@
         "kind": 2,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "def main() -> int:\n    setup_logging()\n    args = parse_args()\n    env_path = Path(args.env_file) if args.env_file else None\n    settings = load_settings(env_path)\n    watcher = TorrentWatcher(settings)\n    watcher.run()\n    LOG.info(\"Watcher stopped\")\n    return 0\nif __name__ == \"__main__\":",
+        "peekOfCode": "def main() -> int:\n    setup_logging()\n    args = parse_args()\n    env_path = Path(args.env_file) if args.env_file else None\n    settings = load_settings(env_path)\n    if args.debug:\n        LOG.setLevel(logging.DEBUG)\n    watcher = TorrentWatcher(settings)\n    watcher.run()\n    LOG.info(\"Watcher stopped\")",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
