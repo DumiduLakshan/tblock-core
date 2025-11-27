@@ -286,7 +286,7 @@
         "kind": 6,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "class WhatsAppNotifier:\n    def __init__(self, enabled: bool, api_key: Optional[str], channel: Optional[str]):\n        self.enabled = enabled and bool(api_key) and bool(channel)\n        self.api_key = api_key\n        self.channel = channel\n        self.image_url = \"https://i.imgur.com/4M7IWwP.png\"\n    def send_ban(self, email: str, domain: str, hours: int) -> None:\n        if not self.enabled:\n            return\n        payload = {",
+        "peekOfCode": "class WhatsAppNotifier:\n    def __init__(self, enabled: bool, api_key: Optional[str], channel: Optional[str]):\n        self.enabled = enabled and bool(api_key) and bool(channel)\n        self.api_key = api_key\n        self.channel = channel\n    def send_ban(self, email: str, domain: str, hours: int) -> None:\n        if not self.enabled:\n            return\n        payload = {\n            \"to\": self.channel,",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },

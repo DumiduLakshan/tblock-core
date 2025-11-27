@@ -238,7 +238,6 @@ class WhatsAppNotifier:
         self.enabled = enabled and bool(api_key) and bool(channel)
         self.api_key = api_key
         self.channel = channel
-        self.image_url = "https://i.imgur.com/4M7IWwP.png"
 
     def send_ban(self, email: str, domain: str, hours: int) -> None:
         if not self.enabled:
@@ -252,8 +251,7 @@ class WhatsAppNotifier:
                 f"• Source: `{domain}`\n"
                 f"• Action: banned for {hours} hours\n"
                 f"• Service: dragonforce"
-            ),
-            "imageUrl": self.image_url,
+            )
         }
         headers = {
             "Authorization": f"Bearer {self.api_key}",
