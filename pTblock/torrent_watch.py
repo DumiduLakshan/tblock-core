@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 LOG = logging.getLogger("torrent_watch")
 
-BLOCK_MARKERS = ("-> blocked", ">> blocked", "[block]")
+BLOCK_MARKERS = ("blocked", ">> block", "[block")
 DEFAULT_OUTPUT = "data/torrent-offenders.txt"
 DEFAULT_LOG_DB = "data/ban_log.json"
 
@@ -145,7 +145,10 @@ class XuiClient:
     def get_client(self, email: str) -> Optional[Dict[str, Any]]:
         path = f"/inbounds/getClientTraffics/{requests.utils.quote(email)}"
         data = self._request("GET", path)
-        return data.get("obj")
+        obj = data.get("obj")
+        if isinstance(obj, list):
+            return obj[0] if obj else None
+        return obj
 
     def get_inbound(self, inbound_id: int) -> Dict[str, Any]:
         path = f"/inbounds/get/{inbound_id}"
@@ -298,7 +301,7 @@ def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[s
     email = "UNKNOWN"
     if email_idx is not None and email_idx + 1 < len(parts):
         email = parts[email_idx + 1]
-    blocked = ">> block" in line.lower()
+    blocked = "blocked" in line.lower()
     domain = None
     try:
         if "accepted" in parts:
@@ -342,14 +345,18 @@ class TorrentWatcher:
             fh.write(
                 f"{detect_time}\t{timestamp}\t{ip}\t{email}\t{raw.rstrip()}\n"
             )
+        LOG.info("Logged offender %s to %s", email, self.output_file)
 
     def disable_client(self, email: str, ip: str) -> bool:
         client = self.xui.get_client(email)
         if not client:
             LOG.warning("No client found for email %s", email)
             return False
-        inbound_id = client["inboundId"]
-        client_uuid = client["uuid"]
+        inbound_id = client.get("inboundId") or client.get("inbound_id")
+        client_uuid = client.get("uuid") or client.get("id")
+        if inbound_id is None or client_uuid is None:
+            LOG.warning("Client data missing inboundId/uuid for %s", email)
+            return False
         disabled = self.xui.set_client_enabled(inbound_id, client_uuid, enable=False)
         entry = {
             "email": email,
@@ -426,6 +433,7 @@ def main() -> int:
     if args.debug:
         LOG.setLevel(logging.DEBUG)
     watcher = TorrentWatcher(settings)
+    LOG.info("Service configured. Offender file: %s | Ban log: %s", settings.output_file, settings.log_file)
     watcher.run()
     LOG.info("Watcher stopped")
     return 0

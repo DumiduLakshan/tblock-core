@@ -349,7 +349,7 @@
         "kind": 2,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "def main() -> int:\n    setup_logging()\n    args = parse_args()\n    env_path = Path(args.env_file) if args.env_file else None\n    settings = load_settings(env_path)\n    if args.debug:\n        LOG.setLevel(logging.DEBUG)\n    watcher = TorrentWatcher(settings)\n    watcher.run()\n    LOG.info(\"Watcher stopped\")",
+        "peekOfCode": "def main() -> int:\n    setup_logging()\n    args = parse_args()\n    env_path = Path(args.env_file) if args.env_file else None\n    settings = load_settings(env_path)\n    if args.debug:\n        LOG.setLevel(logging.DEBUG)\n    watcher = TorrentWatcher(settings)\n    LOG.info(\"Service configured. Offender file: %s | Ban log: %s\", settings.output_file, settings.log_file)\n    watcher.run()",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -358,7 +358,7 @@
         "kind": 5,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "LOG = logging.getLogger(\"torrent_watch\")\nBLOCK_MARKERS = (\"-> blocked\", \">> blocked\", \"[block]\")\nDEFAULT_OUTPUT = \"data/torrent-offenders.txt\"\nDEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str",
+        "peekOfCode": "LOG = logging.getLogger(\"torrent_watch\")\nBLOCK_MARKERS = (\"blocked\", \">> block\", \"[block\")\nDEFAULT_OUTPUT = \"data/torrent-offenders.txt\"\nDEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -367,7 +367,7 @@
         "kind": 5,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "BLOCK_MARKERS = (\"-> blocked\", \">> blocked\", \"[block]\")\nDEFAULT_OUTPUT = \"data/torrent-offenders.txt\"\nDEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str\n    panel_port: int",
+        "peekOfCode": "BLOCK_MARKERS = (\"blocked\", \">> block\", \"[block\")\nDEFAULT_OUTPUT = \"data/torrent-offenders.txt\"\nDEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:\n    log_path: Path\n    output_file: Path\n    panel_scheme: str\n    panel_host: str\n    panel_port: int",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
