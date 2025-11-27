@@ -461,7 +461,7 @@ def main():
     xui = load_xui_config()
 
     venv = ensure_venv(base)
-    run_pip(venv, ["requests", "python-dotenv"])
+    run_pip(venv, ["requests", "python-dotenv", "fastapi", "uvicorn", "python-multipart"])
     global REQUESTS
     REQUESTS = load_requests(venv)
 
@@ -571,7 +571,13 @@ def main():
     else:
         print(f"{YELLOW}Panel service not fully installed. Manual steps may be required.{RESET}")
     create_cli_menu()
-    print(f"{GREEN}You can manage tblock via the 'tblock' command (status/logs/stop/remove).{RESET}")
+    print(f"{GREEN}You can manage tblock via the 'tblock' command (status/logs/start/stop/remove).{RESET}")
+    print(f"{CYAN}Watcher status: {RESET}")
+    subprocess.run(["systemctl", "status", "tblock-watcher.service", "--no-pager"])
+    print(f"{CYAN}Panel status: {RESET}")
+    subprocess.run(["systemctl", "status", "tblock-panel.service", "--no-pager"])
+    print(f"{GREEN}Panel URL: http://{server_ip}:{env_values['PANEL_PORT']}/{RESET}")
+    print(f"{GREEN}Login with panel username: {xui['username']} and your provided password.{RESET}")
 
 
 if __name__ == "__main__":
