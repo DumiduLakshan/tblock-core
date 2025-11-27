@@ -164,6 +164,8 @@ def validate_with_backend(token: str, vps_ip: str, hostname: str | None = None):
                     msg = "; ".join([item.get("msg", str(item)) for item in data if isinstance(item, dict)]) or str(data)
             else:
                 msg = resp.text
+            if "uniq_token_ip_active" in msg or "duplicate key" in msg:
+                msg = "TBlock is already installed on this VPS for this token. Please contact the admin to reset your slot."
             fail(f"Token check failed: {msg or 'unknown error'}")
         return resp.json()
     except Exception as e:
@@ -309,23 +311,98 @@ def create_cli_menu():
     script = textwrap.dedent(
         """\
         #!/usr/bin/env bash
-        service_name="tblock-watcher.service"
-        env_file="/etc/systemd/system/${service_name}"
+        set -euo pipefail
+        svc="tblock-watcher.service"
+        RED="\\033[91m"; GREEN="\\033[92m"; YELLOW="\\033[93m"; CYAN="\\033[96m"; RESET="\\033[0m"; BOLD="\\033[1m"
+
+        banner() {
+          cat <<'EOF'
+         _   _     _            _       __ _      _           _        _ _           
+        | | | |   | |          | |     / _| |    (_)         | |      | | |          
+        | |_| |__ | | ___   ___| | __ | |_| | __  _ _ __  ___| |_ __ _| | | ___ _ __ 
+        | __| '_ \\| |/ _ \\ / __| |/ / |  _| |/ / | | '_ \\/ __| __/ _` | | |/ _ \\ '__|
+        | |_| |_) | | (_) | (__|   < _| | |   <  | | | | \\__ \\ || (_| | | |  __/ |   
+         \\__|_.__/|_|\\___/ \\___|_|\\_(_)_| |_|\\_\\ |_|_| |_|___/\\__\\__,_|_|_|\\___|_|   
+        EOF
+          echo -e "${BOLD}${CYAN}tblock.fk control${RESET}"
+        }
+
+        fragment_path="$(systemctl show -p FragmentPath --value "$svc" 2>/dev/null || true)"
+        workdir=""
+        if [[ -n "$fragment_path" && -f "$fragment_path" ]]; then
+          workdir=$(grep -m1 '^WorkingDirectory=' "$fragment_path" | cut -d= -f2)
+        fi
+        [[ -z "$workdir" ]] && workdir="/root/tblock-core"
+
+        status_msg() {
+          if systemctl is-active --quiet "$svc"; then
+            echo -e "${GREEN}tblock is running${RESET}"
+          else
+            echo -e "${YELLOW}tblock is stopped${RESET}"
+          fi
+          if systemctl is-enabled --quiet "$svc"; then
+            echo -e "${GREEN}Startup: enabled${RESET}"
+          else
+            echo -e "${YELLOW}Startup: disabled${RESET}"
+          fi
+        }
+
+        show_logs() {
+          echo -e "${CYAN}Recent logs:${RESET}"
+          journalctl -u "$svc" -n 50 --no-pager --output=cat || echo "No logs available."
+        }
+
+        start_svc() {
+          if systemctl is-active --quiet "$svc"; then
+            echo -e "${YELLOW}tblock already running; not restarting.${RESET}"
+          else
+            systemctl start "$svc" && echo -e "${GREEN}tblock started.${RESET}"
+          fi
+        }
+
+        stop_svc() {
+          if systemctl is-active --quiet "$svc"; then
+            systemctl stop "$svc" && echo -e "${GREEN}tblock stopped.${RESET}"
+          else
+            echo -e "${YELLOW}tblock is not running.${RESET}"
+          fi
+        }
+
+        remove_all() {
+          echo -e "${YELLOW}This will remove tblock service and files in ${workdir}.${RESET}"
+          read -rp "Proceed? (y/n): " ans
+          if [[ "$ans" != "y" ]]; then
+            echo "Cancelled."
+            return
+          fi
+          systemctl disable --now "$svc" 2>/dev/null || true
+          rm -f /etc/systemd/system/"$svc"
+          systemctl daemon-reload
+          rm -f /usr/local/bin/tblock
+          if [[ -d "$workdir" ]]; then
+            rm -rf "$workdir"
+          fi
+          echo -e "${GREEN}tblock removed.${RESET}"
+        }
+
         while true; do
-          echo "tblock.fk menu"
-          echo "1) Check tblock status"
-          echo "2) Check tblock logs"
-          echo "3) Stop tblock service"
-          echo "4) Remove tblock service"
-          echo "5) Exit"
+          clear
+          banner
+          echo -e "${BOLD}1) Status${RESET}"
+          echo -e "${BOLD}2) Logs${RESET}"
+          echo -e "${BOLD}3) Start${RESET}"
+          echo -e "${BOLD}4) Stop${RESET}"
+          echo -e "${BOLD}5) Remove tblock${RESET}"
+          echo -e "${BOLD}6) Exit${RESET}"
           read -rp "Select an option: " opt
           case "$opt" in
-            1) systemctl status "$service_name" --no-pager; break;;
-            2) journalctl -u "$service_name" -n 200 --no-pager; break;;
-            3) sudo systemctl stop "$service_name"; echo "Stopped."; break;;
-            4) sudo systemctl disable --now "$service_name"; sudo rm -f /etc/systemd/system/"$service_name"; sudo systemctl daemon-reload; echo "Removed."; break;;
-            5) exit 0;;
-            *) echo "Invalid option";;
+            1) status_msg; read -rp \"Press Enter to return...\" _ ;;
+            2) show_logs; read -rp \"Press Enter to return...\" _ ;;
+            3) start_svc; read -rp \"Press Enter to return...\" _ ;;
+            4) stop_svc; read -rp \"Press Enter to return...\" _ ;;
+            5) remove_all; read -rp \"Press Enter to return...\" _ ;;
+            6) exit 0 ;;
+            *) echo \"Invalid option\"; sleep 1 ;;
           esac
         done
         """
