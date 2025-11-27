@@ -151,6 +151,22 @@
         "documentation": {}
     },
     {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Tuple",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "requests",
         "kind": 6,
         "isExtraImport": true,
@@ -473,6 +489,15 @@
         "documentation": {}
     },
     {
+        "label": "test_wasender_message",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def test_wasender_message(api_key: str, channel_id: str) -> Tuple[bool, str]:\n    try:\n        payload = {\"to\": channel_id, \"text\": \"tblock.fk test message\"}\n        resp = REQUESTS.post(\n            \"https://www.wasenderapi.com/api/send-message\",\n            headers={\n                \"Authorization\": f\"Bearer {api_key}\",\n                \"Content-Type\": \"application/json\",\n            },\n            data=json.dumps(payload),",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
         "label": "ensure_access_log",
         "kind": 2,
         "importPath": "installer",
@@ -505,6 +530,15 @@
         "importPath": "installer",
         "description": "installer",
         "peekOfCode": "def install_service_unit(service_path: Path):\n    target = Path(\"/etc/systemd/system/tblock-watcher.service\")\n    cmds = [\n        ([\"cp\", str(service_path), str(target)], \"copy service\"),\n        ([\"systemctl\", \"daemon-reload\"], \"daemon-reload\"),\n        ([\"systemctl\", \"enable\", \"--now\", \"tblock-watcher.service\"], \"enable/start service\"),\n    ]\n    for cmd, desc in cmds:\n        final = cmd if os.geteuid() == 0 else [\"sudo\"] + cmd\n        try:",
+        "detail": "installer",
+        "documentation": {}
+    },
+    {
+        "label": "create_cli_menu",
+        "kind": 2,
+        "importPath": "installer",
+        "description": "installer",
+        "peekOfCode": "def create_cli_menu():\n    script = textwrap.dedent(\n        \"\"\"\\\n        #!/usr/bin/env bash\n        service_name=\"tblock-watcher.service\"\n        env_file=\"/etc/systemd/system/${service_name}\"\n        while true; do\n          echo \"tblock.fk menu\"\n          echo \"1) Check tblock status\"\n          echo \"2) Check tblock logs\"",
         "detail": "installer",
         "documentation": {}
     },

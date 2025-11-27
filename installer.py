@@ -8,6 +8,7 @@ import sys
 import textwrap
 from importlib import import_module
 from pathlib import Path
+from typing import Optional, Tuple
 
 REQUESTS = None
 GREEN = "\033[92m"
@@ -221,6 +222,26 @@ def verify_wasender(api_key: str) -> bool:
         return False
 
 
+def test_wasender_message(api_key: str, channel_id: str) -> Tuple[bool, str]:
+    try:
+        payload = {"to": channel_id, "text": "tblock.fk test message"}
+        resp = REQUESTS.post(
+            "https://www.wasenderapi.com/api/send-message",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            data=json.dumps(payload),
+            timeout=12,
+        )
+        data = resp.json()
+        if resp.status_code == 200 and isinstance(data, dict) and data.get("success"):
+            return True, ""
+        return False, str(data)
+    except Exception as e:
+        return False, str(e)
+
+
 def ensure_access_log(log_path: Path):
     while True:
         if log_path.exists():
@@ -284,6 +305,40 @@ def install_service_unit(service_path: Path):
     return True
 
 
+def create_cli_menu():
+    script = textwrap.dedent(
+        """\
+        #!/usr/bin/env bash
+        service_name="tblock-watcher.service"
+        env_file="/etc/systemd/system/${service_name}"
+        while true; do
+          echo "tblock.fk menu"
+          echo "1) Check tblock status"
+          echo "2) Check tblock logs"
+          echo "3) Stop tblock service"
+          echo "4) Remove tblock service"
+          echo "5) Exit"
+          read -rp "Select an option: " opt
+          case "$opt" in
+            1) systemctl status "$service_name" --no-pager; break;;
+            2) journalctl -u "$service_name" -n 200 --no-pager; break;;
+            3) sudo systemctl stop "$service_name"; echo "Stopped."; break;;
+            4) sudo systemctl disable --now "$service_name"; sudo rm -f /etc/systemd/system/"$service_name"; sudo systemctl daemon-reload; echo "Removed."; break;;
+            5) exit 0;;
+            *) echo "Invalid option";;
+          esac
+        done
+        """
+    )
+    path = Path("/usr/local/bin/tblock")
+    try:
+        path.write_text(script, encoding="utf-8")
+        path.chmod(0o755)
+        print(f"{GREEN}✓ Installed CLI helper 'tblock'{RESET}")
+    except Exception as e:
+        print(f"{YELLOW}! Could not install CLI helper: {e}{RESET}")
+
+
 def main():
     base = Path(__file__).resolve().parent
     banner()
@@ -296,7 +351,7 @@ def main():
     xui = load_xui_config()
 
     venv = ensure_venv(base)
-    run_pip(venv, ["requests"])
+    run_pip(venv, ["requests", "python-dotenv"])
     global REQUESTS
     REQUESTS = load_requests(venv)
 
@@ -319,30 +374,44 @@ def main():
     twofa = xui.get("twofa", "")
 
     wa_enabled = False
-    wa_key = ""
+    wa_pat = ""
+    wa_api = ""
     wa_channel = ""
     ans = input(f"{CYAN}Send suspension notices to WhatsApp channel? (y/n): {RESET}").strip().lower()
     if ans == "y":
-        print(f"{YELLOW}Provide your Wasender API key. Learn more: https://wasenderapi.com/api-docs{RESET}")
+        print(f"{YELLOW}Provide your Wasender personal access token (https://wasenderapi.com/settings/tokens).{RESET}")
         for attempt in range(3):
-            wa_key_try = getpass.getpass("Wasender API key: ").strip()
-            if not wa_key_try:
-                print(f"{YELLOW}API key required.{RESET}")
+            wa_pat_try = getpass.getpass("Wasender personal access token: ").strip()
+            if not wa_pat_try:
+                print(f"{YELLOW}Token required.{RESET}")
                 continue
-            print(f"{CYAN}Validating Wasender API key...{RESET}")
-            if verify_wasender(wa_key_try):
-                wa_key = wa_key_try
-                wa_enabled = True
+            print(f"{CYAN}Validating personal access token...{RESET}")
+            if verify_wasender(wa_pat_try):
+                wa_pat = wa_pat_try
                 break
             else:
-                print(f"{RED}Validation failed. Ensure you have at least one connected session.{RESET}")
-        if wa_enabled:
-            wa_channel = input(f"{CYAN}WhatsApp channel/number to notify (e.g., +94XXXXXXXXX): {RESET}").strip()
-            if not wa_channel:
-                print(f"{YELLOW}Channel not provided; WhatsApp notifications disabled.{RESET}")
-                wa_enabled = False
-        else:
-            print(f"{YELLOW}Skipping WhatsApp automation. Contact 075 126 7252 for help if needed.{RESET}")
+                print(f"{RED}Validation failed. Ensure at least one WhatsApp session is connected.{RESET}")
+        if wa_pat:
+            print(f"{YELLOW}Now provide your Wasender API key for sending messages (https://wasenderapi.com/whatsapp/manage/).{RESET}")
+            for attempt in range(3):
+                wa_api_try = getpass.getpass("Wasender API key: ").strip()
+                if not wa_api_try:
+                    print(f"{YELLOW}API key required.{RESET}")
+                    continue
+                wa_channel_try = input(f"{CYAN}WhatsApp channel id (e.g., 123456789@newsletter): {RESET}").strip()
+                if not wa_channel_try:
+                    print(f"{YELLOW}Channel id required.{RESET}")
+                    continue
+                ok, err = test_wasender_message(wa_api_try, wa_channel_try)
+                if ok:
+                    wa_api = wa_api_try
+                    wa_channel = wa_channel_try
+                    wa_enabled = True
+                    break
+                else:
+                    print(f"{RED}Send test failed: {err}{RESET}")
+            if not wa_enabled:
+                print(f"{YELLOW}Skipping WhatsApp automation. Contact 075 126 7252 for help.{RESET}")
 
     log_path = Path("/usr/local/x-ui/access.log")
     ensure_access_log(log_path)
@@ -364,8 +433,10 @@ def main():
         "WEBHOOK_ALLOWED_ORIGINS": xui["domain"],
         "WEBHOOK_ALLOWED_IPS": server_ip,
         "WASENDER_ENABLED": "1" if wa_enabled else "0",
-        "WASENDER_API_KEY": wa_key,
+        "WASENDER_PERSONAL_TOKEN": wa_pat,
+        "WASENDER_API_KEY": wa_api,
         "WASENDER_CHANNEL": wa_channel,
+        "WHATSAPP_INTEGRATION": "True" if wa_enabled else "False",
     }
     env_path.write_text("\n".join(f"{k}={v}" for k, v in env_values.items()) + "\n", encoding="utf-8")
     print(f"{GREEN}✓ Saved configuration to {env_path}{RESET}")
@@ -378,6 +449,8 @@ def main():
         print(f"{GREEN}tblock watcher installed and running.{RESET}")
     else:
         print(f"{YELLOW}Service not fully installed. Manual steps may be required.{RESET}")
+    create_cli_menu()
+    print(f"{GREEN}You can manage tblock via the 'tblock' command (status/logs/stop/remove).{RESET}")
 
 
 if __name__ == "__main__":
