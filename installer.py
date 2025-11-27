@@ -302,7 +302,7 @@ def write_panel_service(base: Path, venv: Path, env_path: Path, port: str):
         Type=simple
         WorkingDirectory={base}
         EnvironmentFile={env_path}
-        ExecStart={venv}/bin/python -m uvicorn pTblock.panel_app:app --host 0.0.0.0 --port {port}
+        ExecStart={venv}/bin/uvicorn pTblock.panel_app:app --host 0.0.0.0 --port {port}
         Restart=on-failure
 
         [Install]
