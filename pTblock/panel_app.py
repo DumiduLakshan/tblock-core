@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import sys
 from typing import Optional
 
 import uvicorn
@@ -7,6 +8,10 @@ from fastapi import FastAPI, Depends, HTTPException, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
 
 from ban_store import BanStore
 from torrent_watch import Settings, load_settings, XuiClient

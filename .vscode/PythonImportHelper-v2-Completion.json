@@ -1,46 +1,5 @@
 [
     {
-        "label": "fastapi",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "fastapi",
-        "description": "fastapi",
-        "detail": "fastapi",
-        "documentation": {}
-    },
-    {
-        "label": "FastAPI",
-        "importPath": "fastapi",
-        "description": "fastapi",
-        "isExtraImport": true,
-        "detail": "fastapi",
-        "documentation": {}
-    },
-    {
-        "label": "Depends",
-        "importPath": "fastapi",
-        "description": "fastapi",
-        "isExtraImport": true,
-        "detail": "fastapi",
-        "documentation": {}
-    },
-    {
-        "label": "HTTPException",
-        "importPath": "fastapi",
-        "description": "fastapi",
-        "isExtraImport": true,
-        "detail": "fastapi",
-        "documentation": {}
-    },
-    {
-        "label": "Form",
-        "importPath": "fastapi",
-        "description": "fastapi",
-        "isExtraImport": true,
-        "detail": "fastapi",
-        "documentation": {}
-    },
-    {
         "label": "sqlite3",
         "kind": 6,
         "isExtraImport": true,
@@ -202,14 +161,6 @@
         "documentation": {}
     },
     {
-        "label": "check_ubuntu",
-        "importPath": "installer",
-        "description": "installer",
-        "isExtraImport": true,
-        "detail": "installer",
-        "documentation": {}
-    },
-    {
         "label": "os",
         "kind": 6,
         "isExtraImport": true,
@@ -219,12 +170,53 @@
         "documentation": {}
     },
     {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
         "label": "uvicorn",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "uvicorn",
         "description": "uvicorn",
         "detail": "uvicorn",
+        "documentation": {}
+    },
+    {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Depends",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Form",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
         "documentation": {}
     },
     {
@@ -357,15 +349,6 @@
         "importPath": "signal",
         "description": "signal",
         "detail": "signal",
-        "documentation": {}
-    },
-    {
-        "label": "sys",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "sys",
-        "description": "sys",
-        "detail": "sys",
         "documentation": {}
     },
     {
@@ -502,6 +485,15 @@
         "documentation": {}
     },
     {
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent\nif str(BASE_DIR) not in sys.path:\n    sys.path.insert(0, str(BASE_DIR))\nfrom ban_store import BanStore\nfrom torrent_watch import Settings, load_settings, XuiClient\nsecurity = HTTPBasic()\napp = FastAPI(title=\"tblock.fk bans\")\nSETTINGS: Optional[Settings] = None\nSTORE: Optional[BanStore] = None\nXUI: Optional[XuiClient] = None",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
         "label": "security",
         "kind": 5,
         "importPath": "pTblock.panel_app",
@@ -624,6 +616,15 @@
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
         "peekOfCode": "def main() -> int:\n    setup_logging()\n    args = parse_args()\n    env_path = Path(args.env_file) if args.env_file else None\n    settings = load_settings(env_path)\n    if args.debug:\n        LOG.setLevel(logging.DEBUG)\n    watcher = TorrentWatcher(settings)\n    LOG.info(\"Service configured. Offender file: %s | Ban log: %s\", settings.output_file, settings.log_file)\n    watcher.run()",
+        "detail": "pTblock.torrent_watch",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "pTblock.torrent_watch",
+        "description": "pTblock.torrent_watch",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent\nif str(BASE_DIR) not in sys.path:\n    sys.path.insert(0, str(BASE_DIR))\nfrom ban_store import BanStore\nLOG = logging.getLogger(\"torrent_watch\")\nBLOCK_MARKERS = (\"blocked\", \">> block\", \"[block\")\nDEFAULT_OUTPUT = \"data/torrent-offenders.txt\"\nDEFAULT_LOG_DB = \"data/ban_log.json\"\n@dataclass\nclass Settings:",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },

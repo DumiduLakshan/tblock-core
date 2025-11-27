@@ -1,9 +1,7 @@
-import fastapi
 import sqlite3
 from pathlib import Path
 from typing import List, Dict, Any
 from datetime import datetime, timezone
-from installer import check_ubuntu
 
 
 class BanStore:
