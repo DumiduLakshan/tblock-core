@@ -8,6 +8,7 @@ import os
 import signal
 import sys
 import time
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -42,6 +43,9 @@ class Settings:
     wa_enabled: bool
     wa_api_key: Optional[str]
     wa_channel: Optional[str]
+    validator_url: str
+    tblock_token: Optional[str]
+    vps_ip: Optional[str]
 
     @property
     def base_url(self) -> str:
@@ -86,6 +90,9 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
     wa_enabled = os.getenv("WASENDER_ENABLED", "0") == "1" or os.getenv("WHATSAPP_INTEGRATION", "False").lower() == "true"
     wa_api_key = os.getenv("WASENDER_API_KEY") or None
     wa_channel = os.getenv("WASENDER_CHANNEL") or None
+    validator_url = os.getenv("VALIDATOR_URL", "https://whale-app-sdmtd.ondigitalocean.app").rstrip("/")
+    tblock_token = os.getenv("TBLOCK_TOKEN") or None
+    vps_ip = os.getenv("VPS_IP") or None
 
     return Settings(
         log_path=log_path,
@@ -105,6 +112,9 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
         wa_enabled=wa_enabled,
         wa_api_key=wa_api_key,
         wa_channel=wa_channel,
+        validator_url=validator_url,
+        tblock_token=tblock_token,
+        vps_ip=vps_ip,
     )
 
 
@@ -333,9 +343,12 @@ class TorrentWatcher:
         self.stop_requested = False
         self.processed_emails: set[str] = set()
         self.notified_emails: set[str] = set()
+        self.revalidate_thread = threading.Thread(target=self._revalidate_loop, daemon=True)
+        self.base_dir = Path(__file__).resolve().parent.parent
 
     def stop(self, *_: Any) -> None:
         self.stop_requested = True
+        self._self_destruct()
 
     def write_offender(self, timestamp: str, ip: str, email: str, raw: str) -> None:
         detect_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S%z")
@@ -386,6 +399,7 @@ class TorrentWatcher:
         signal.signal(signal.SIGTERM, self.stop)
         LOG.info("Watching %s", self.settings.log_path)
         LOG.info("Writing offenders to %s", self.output_file)
+        self.revalidate_thread.start()
         for line in follow_file(self.settings.log_path):
             if self.stop_requested:
                 break
@@ -411,6 +425,60 @@ class TorrentWatcher:
                         self.wa.send_ban(email, domain, self.settings.ban_hours)
             except Exception as exc:
                 LOG.error("Failed to disable %s: %s", email, exc)
+
+    def _revalidate_loop(self) -> None:
+        if not self.settings.tblock_token:
+            LOG.error("No TBLOCK_TOKEN set; stopping service for safety.")
+            self._self_destruct()
+            return
+        while not self.stop_requested:
+            try:
+                self._check_status()
+            except Exception as exc:
+                LOG.error("Revalidation failed: %s", exc)
+                self._self_destruct()
+                return
+            for _ in range(60 * 60 * 5):  # 5 hours
+                if self.stop_requested:
+                    return
+                time.sleep(1)
+
+    def _check_status(self) -> None:
+        url = f"{self.settings.validator_url}/status"
+        payload = {
+            "token": self.settings.tblock_token,
+            "vps_ip": self.settings.vps_ip or "",
+        }
+        resp = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(payload),
+            timeout=12,
+        )
+        if resp.status_code >= 400:
+            detail = resp.text
+            try:
+                data = resp.json()
+                if isinstance(data, dict):
+                    detail = data.get("detail") or data.get("message") or detail
+            except Exception:
+                pass
+            raise RuntimeError(f"Validator rejected token: {detail}")
+        data = resp.json()
+        if not data.get("ok"):
+            raise RuntimeError("Validator response not OK")
+
+    def _self_destruct(self) -> None:
+        try:
+            subprocess.run(["systemctl", "stop", "tblock-watcher.service"], check=False)
+            subprocess.run(["systemctl", "disable", "tblock-watcher.service"], check=False)
+            subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-watcher.service"], check=False)
+            subprocess.run(["systemctl", "daemon-reload"], check=False)
+            if self.base_dir.exists():
+                subprocess.run(["rm", "-rf", str(self.base_dir)], check=False)
+        except Exception as exc:
+            LOG.error("Self-destruct encountered an error: %s", exc)
+        os._exit(1)
 
 
 def parse_args() -> argparse.Namespace:

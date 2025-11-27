@@ -525,6 +525,9 @@ def main():
         "WASENDER_API_KEY": wa_api,
         "WASENDER_CHANNEL": wa_channel,
         "WHATSAPP_INTEGRATION": "True" if wa_enabled else "False",
+        "TBLOCK_TOKEN": token,
+        "VALIDATOR_URL": VALIDATOR_URL,
+        "VPS_IP": vps_ip,
     }
     env_path.write_text("\n".join(f"{k}={v}" for k, v in env_values.items()) + "\n", encoding="utf-8")
     print(f"{GREEN}✓ Saved configuration to {env_path}{RESET}")
