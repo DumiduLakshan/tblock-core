@@ -315,7 +315,7 @@ def write_panel_service(base: Path, venv: Path, env_path: Path, port: str):
 
 
 def install_service_unit(service_path: Path):
-    target = Path("/etc/systemd/system/tblock-watcher.service")
+    target = Path("/etc/systemd/system") / service_path.name
     cmds = [
         (["cp", str(service_path), str(target)], "copy service"),
         (["systemctl", "daemon-reload"], "daemon-reload"),

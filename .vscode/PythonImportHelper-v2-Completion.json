@@ -813,7 +813,7 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def install_service_unit(service_path: Path):\n    target = Path(\"/etc/systemd/system/tblock-watcher.service\")\n    cmds = [\n        ([\"cp\", str(service_path), str(target)], \"copy service\"),\n        ([\"systemctl\", \"daemon-reload\"], \"daemon-reload\"),\n        ([\"systemctl\", \"enable\", \"--now\", \"tblock-watcher.service\"], \"enable/start service\"),\n    ]\n    for cmd, desc in cmds:\n        final = cmd if os.geteuid() == 0 else [\"sudo\"] + cmd\n        try:",
+        "peekOfCode": "def install_service_unit(service_path: Path):\n    target = Path(\"/etc/systemd/system\") / service_path.name\n    cmds = [\n        ([\"cp\", str(service_path), str(target)], \"copy service\"),\n        ([\"systemctl\", \"daemon-reload\"], \"daemon-reload\"),\n        ([\"systemctl\", \"enable\", \"--now\", \"tblock-watcher.service\"], \"enable/start service\"),\n    ]\n    for cmd, desc in cmds:\n        final = cmd if os.geteuid() == 0 else [\"sudo\"] + cmd\n        try:",
         "detail": "installer",
         "documentation": {}
     },
