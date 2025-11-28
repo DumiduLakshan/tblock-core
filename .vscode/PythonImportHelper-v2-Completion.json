@@ -660,7 +660,7 @@
         "kind": 2,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "def setup_logging() -> None:\n    handler = logging.StreamHandler(sys.stdout)\n    handler.setFormatter(logging.Formatter(\"[%(asctime)s] %(levelname)s %(message)s\"))\n    LOG.addHandler(handler)\n    LOG.setLevel(logging.INFO)\nclass TorrentWatcher:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.xui = XuiClient(settings)\n        self.log = BanLog(settings.log_file)",
+        "peekOfCode": "def setup_logging() -> None:\n    handler = logging.StreamHandler(sys.stdout)\n    handler.setFormatter(logging.Formatter(\"[%(asctime)s] %(levelname)s %(message)s\"))\n    LOG.addHandler(handler)\n    LOG.setLevel(logging.WARNING)\nclass TorrentWatcher:\n    def __init__(self, settings: Settings):\n        self.settings = settings\n        self.xui = XuiClient(settings)\n        self.log = BanLog(settings.log_file)",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -858,7 +858,7 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def ensure_access_log(log_path: Path):\n    while True:\n        if log_path.exists():\n            print(f\"{GREEN}✓ Found access log at {log_path}{RESET}\")\n            return\n        print(f\"{YELLOW}Access log not found at {log_path}{RESET}\")\n        print(\"Enable logging in 3x-ui (Panel -> Settings -> Logs) and ensure access log is on.\")\n        ans = input(f\"{CYAN}Have you enabled the log? (y/n): {RESET}\").strip().lower()\n        if ans == \"y\":\n            continue",
+        "peekOfCode": "def ensure_access_log(log_path: Path):\n    while True:\n        if log_path.exists():\n            print(f\"{GREEN}✓ Access log detected{RESET}\")\n            return\n        print(f\"{YELLOW}Access log not found at {log_path}{RESET}\")\n        print(\"Enable logging in 3x-ui (Panel -> Settings -> Logs) and ensure access log is on.\")\n        ans = input(f\"{CYAN}Have you enabled the log? (y/n): {RESET}\").strip().lower()\n        if ans == \"y\":\n            continue",
         "detail": "installer",
         "documentation": {}
     },

@@ -98,9 +98,13 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
     validator_url = os.getenv("VALIDATOR_URL", "https://whale-app-sdmtd.ondigitalocean.app").rstrip("/")
     tblock_token = os.getenv("TBLOCK_TOKEN") or None
     vps_ip = os.getenv("VPS_IP") or None
-    ban_db = Path(os.getenv("BAN_DB", "data/bans.db"))
-    if not ban_db.is_absolute():
-        ban_db = Path(__file__).resolve().parent.parent / ban_db
+    ban_raw = os.getenv("BAN_DB", "").strip()
+    if ban_raw:
+        ban_db = Path(ban_raw)
+        if not ban_db.is_absolute():
+            ban_db = Path(__file__).resolve().parent.parent / ban_db
+    else:
+        ban_db = Path(__file__).resolve().parent.parent / "data" / "bans.db"
 
     return Settings(
         log_path=log_path,
@@ -344,7 +348,7 @@ def setup_logging() -> None:
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s %(message)s"))
     LOG.addHandler(handler)
-    LOG.setLevel(logging.INFO)
+    LOG.setLevel(logging.WARNING)
 
 
 class TorrentWatcher:
@@ -465,7 +469,7 @@ class TorrentWatcher:
                 LOG.error("Revalidation failed: %s", exc)
                 self._self_destruct()
                 return
-            for _ in range(60 * 60 * 5):  # 5 hours
+            for _ in range(60 * 3):  # 3 minutes for testing
                 if self.stop_requested:
                     return
                 time.sleep(1)

@@ -249,7 +249,7 @@ def test_wasender_message(api_key: str, channel_id: str) -> Tuple[bool, str]:
 def ensure_access_log(log_path: Path):
     while True:
         if log_path.exists():
-            print(f"{GREEN}✓ Found access log at {log_path}{RESET}")
+            print(f"{GREEN}✓ Access log detected{RESET}")
             return
         print(f"{YELLOW}Access log not found at {log_path}{RESET}")
         print("Enable logging in 3x-ui (Panel -> Settings -> Logs) and ensure access log is on.")
@@ -555,7 +555,6 @@ def main():
         "PANEL_PORT": "2374",
     }
     env_path.write_text("\n".join(f"{k}={v}" for k, v in env_values.items()) + "\n", encoding="utf-8")
-    print(f"{GREEN}✓ Saved configuration to {env_path}{RESET}")
     print(f"{YELLOW}Proceeding with tblock core install...{RESET}")
     data_dir = base / "data"
     data_dir.mkdir(exist_ok=True)
@@ -573,11 +572,12 @@ def main():
     subprocess.run(["systemctl", "restart", "tblock-watcher.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(["systemctl", "restart", "tblock-panel.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     create_cli_menu()
-    print(f"{GREEN}You can manage tblock via the 'tblock' command (status/logs/start/stop/remove).{RESET}")
-    print(f"{CYAN}Watcher status: {RESET}")
-    subprocess.run(["systemctl", "status", "tblock-watcher.service", "--no-pager"])
-    print(f"{CYAN}Panel status: {RESET}")
-    subprocess.run(["systemctl", "status", "tblock-panel.service", "--no-pager"])
+    watcher_active = subprocess.call(["systemctl", "is-active", "--quiet", "tblock-watcher.service"]) == 0
+    panel_active = subprocess.call(["systemctl", "is-active", "--quiet", "tblock-panel.service"]) == 0
+    icon_ok = f"{GREEN}✓{RESET}"
+    icon_err = f"{RED}!{RESET}"
+    print(f"{icon_ok if watcher_active else icon_err} tblock watcher service {'running' if watcher_active else 'not running'}")
+    print(f"{icon_ok if panel_active else icon_err} tblock panel service {'running' if panel_active else 'not running'}")
     print(f"{GREEN}Panel URL: http://{server_ip}:{env_values['PANEL_PORT']}/login{RESET}")
     print(f"{GREEN}Login with panel username: {xui['username']} and your provided password.{RESET}")
 
