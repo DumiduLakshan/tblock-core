@@ -452,6 +452,12 @@ def main():
     run_pip(venv, ["requests", "python-dotenv", "fastapi", "uvicorn", "python-multipart"])
     global REQUESTS
     REQUESTS = load_requests(venv)
+    try:
+        import urllib3
+
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    except Exception:
+        pass
 
     token = getpass.getpass("Enter your TBlock token: ").strip()
     if not token:
