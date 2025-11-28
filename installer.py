@@ -186,11 +186,12 @@ def load_xui_config():
         fail(f"Failed to read x-ui settings: {e}")
     settings = {k: v for k, v in settings_rows}
     port = settings.get("webPort")
-    base = settings.get("webBasePath")
+    raw_base = settings.get("webBasePath")
     cert = settings.get("webCertFile")
     twofa = settings.get("twoFactorToken") or ""
-    if not port or not base or not cert:
+    if not port or raw_base is None or not cert:
         fail("Missing port/base/cert settings in x-ui database.")
+    base_path = "/" + str(raw_base).strip("/")
     try:
         domain = Path(cert).parent.name
     except Exception:
@@ -202,7 +203,7 @@ def load_xui_config():
         fail("Could not find a panel username in users table.")
     return {
         "port": str(port),
-        "base": "/" + str(base).lstrip("/"),
+        "base": base_path,
         "cert": cert,
         "domain": domain,
         "username": username,
@@ -476,14 +477,15 @@ def main():
             payload = {"username": xui["username"], "password": panel_pass}
             if xui.get("twofa"):
                 payload["twoFactorCode"] = xui["twofa"]
-            url_https = f"https://{xui['domain']}:{xui['port']}{xui['base']}/login/"
-            url_http = f"http://{xui['domain']}:{xui['port']}{xui['base']}/login/"
+            base_path = xui["base"].rstrip("/")
+            url_https = f"https://{xui['domain']}:{xui['port']}{base_path}/login/"
+            url_http = f"http://{xui['domain']}:{xui['port']}{base_path}/login/"
             print(f"{CYAN}Trying panel login at {url_https} with user {xui['username']}...{RESET}")
             ok = False
             for url in (url_https, url_http):
                 try:
-                    resp = sess.post(url, data=payload, timeout=12, verify=False)
-                    if resp.status_code == 200:
+                    resp = sess.post(url, data=payload, timeout=12, verify=False, allow_redirects=False)
+                    if resp.status_code in (200, 302):
                         ok = True
                         break
                 except Exception as e:
