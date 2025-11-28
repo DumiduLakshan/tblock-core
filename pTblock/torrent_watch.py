@@ -502,6 +502,11 @@ class TorrentWatcher:
 
     def _self_destruct(self) -> None:
         try:
+            # remove units and CLI shim to prevent restarts
+            subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-watcher.service"], check=False)
+            subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-panel.service"], check=False)
+            subprocess.run(["rm", "-f", "/usr/local/bin/tblock"], check=False)
+            subprocess.run(["systemctl", "daemon-reload"], check=False)
             if self.base_dir.exists():
                 subprocess.run(["rm", "-rf", str(self.base_dir)], check=False)
         except Exception as exc:
