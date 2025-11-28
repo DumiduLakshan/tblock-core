@@ -478,9 +478,18 @@ def main():
             payload = {"username": xui["username"], "password": panel_pass}
             if xui.get("twofa"):
                 payload["twoFactorCode"] = xui["twofa"]
-            url = f"https://{xui['domain']}:{xui['port']}{xui['base']}/login/"
-            resp = sess.post(url, json=payload, timeout=10, verify=False)
-            if resp.status_code >= 400:
+            url_https = f"https://{xui['domain']}:{xui['port']}{xui['base']}/login/"
+            url_http = f"http://{xui['domain']}:{xui['port']}{xui['base']}/login/"
+            ok = False
+            for url in (url_https, url_http):
+                try:
+                    resp = sess.post(url, data=payload, timeout=10, verify=False)
+                    if resp.status_code < 400:
+                        ok = True
+                        break
+                except Exception:
+                    continue
+            if not ok:
                 print(f"{RED}Password rejected by panel. Try again.{RESET}")
                 continue
         except Exception:
