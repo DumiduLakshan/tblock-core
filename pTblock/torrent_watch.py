@@ -163,7 +163,14 @@ class XuiClient:
 
     def get_client(self, email: str) -> Optional[Dict[str, Any]]:
         path = f"/inbounds/getClientTraffics/{requests.utils.quote(email)}"
-        data = self._request("GET", path)
+        try:
+            data = self._request("GET", path)
+        except requests.HTTPError as exc:  # type: ignore
+            resp = getattr(exc, "response", None)
+            if resp is not None and resp.status_code == 404:
+                LOG.warning("Client %s not found (404)", email)
+                return None
+            raise
         obj = data.get("obj")
         if isinstance(obj, list):
             return obj[0] if obj else None
@@ -372,6 +379,10 @@ class TorrentWatcher:
         client = self.xui.get_client(email)
         if not client:
             LOG.warning("No client found for email %s", email)
+            try:
+                self.ban_store.add(email, ip, domain or "unknown", reason="client_not_found")
+            except Exception as exc:
+                LOG.error("Failed to persist ban to DB: %s", exc)
             return False
         inbound_id = client.get("inboundId") or client.get("inbound_id")
         client_uuid = client.get("uuid") or client.get("id")
