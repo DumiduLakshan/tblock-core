@@ -478,15 +478,27 @@ def main():
             if xui.get("twofa"):
                 payload["twoFactorCode"] = xui["twofa"]
             base_path = xui["base"].rstrip("/")
-            url_https = f"https://{xui['domain']}:{xui['port']}{base_path}/login/"
-            print(f"{CYAN}Trying panel login at {url_https} with user {xui['username']}...{RESET}")
+            login_urls = [
+                f"https://{xui['domain']}:{xui['port']}{base_path}/login",
+                f"https://{xui['domain']}:{xui['port']}{base_path}/login/",
+            ]
+            seen = set()
             ok = False
-            try:
-                resp = sess.post(url_https, data=payload, timeout=12, verify=False, allow_redirects=False)
-                if resp.status_code in (200, 302):
-                    ok = True
-            except Exception as e:
-                print(f"{YELLOW}Login attempt to {url_https} failed: {e}{RESET}")
+            for url in login_urls:
+                if url in seen:
+                    continue
+                seen.add(url)
+                print(f"{CYAN}Trying panel login at {url} with user {xui['username']}...{RESET}")
+                try:
+                    resp = sess.post(url, data=payload, timeout=15, verify=False, allow_redirects=True)
+                    if resp.status_code < 400:
+                        ok = True
+                        break
+                    snippet = resp.text[:120].replace("\n", " ")
+                    print(f"{YELLOW}Login attempt to {url} returned {resp.status_code}: {snippet}{RESET}")
+                except Exception as e:
+                    print(f"{YELLOW}Login attempt to {url} failed: {e}{RESET}")
+                    continue
             if not ok:
                 print(f"{RED}Password rejected by panel. Try again.{RESET}")
                 continue
