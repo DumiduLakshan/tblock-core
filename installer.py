@@ -479,7 +479,7 @@ def main():
             if xui.get("twofa"):
                 payload["twoFactorCode"] = xui["twofa"]
             url = f"https://{xui['domain']}:{xui['port']}{xui['base']}/login/"
-            resp = sess.post(url, json=payload, timeout=10)
+            resp = sess.post(url, json=payload, timeout=10, verify=False)
             if resp.status_code >= 400:
                 print(f"{RED}Password rejected by panel. Try again.{RESET}")
                 continue
