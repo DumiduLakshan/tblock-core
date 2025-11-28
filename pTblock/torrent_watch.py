@@ -381,7 +381,7 @@ class TorrentWatcher:
             return False
         try:
             ip = ipaddress.ip_address(host)
-            if ip.is_multicast or ip.is_loopback or ip.is_link_local or ip.is_reserved:
+            if ip.is_multicast or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_private:
                 return True
         except ValueError:
             return False

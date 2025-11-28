@@ -466,9 +466,27 @@ def main():
     print(f"{GREEN}✓ Token validated{RESET} (remaining slots: {result.get('remaining_slots')})")
     print(f"{YELLOW}Gathering panel details...{RESET}")
 
-    panel_pass = getpass.getpass(f"Enter password for panel user '{xui['username']}': ").strip()
-    if not panel_pass:
-        fail("Panel password is required")
+    panel_pass = ""
+    while True:
+        panel_pass = getpass.getpass(f"Enter password for panel user '{xui['username']}': ").strip()
+        if not panel_pass:
+            print(f"{YELLOW}Password required.{RESET}")
+            continue
+        # quick auth check
+        try:
+            sess = requests.Session()
+            payload = {"username": xui["username"], "password": panel_pass}
+            if xui.get("twofa"):
+                payload["twoFactorCode"] = xui["twofa"]
+            url = f"https://{xui['domain']}:{xui['port']}{xui['base']}/login/"
+            resp = sess.post(url, json=payload, timeout=10)
+            if resp.status_code >= 400:
+                print(f"{RED}Password rejected by panel. Try again.{RESET}")
+                continue
+        except Exception:
+            print(f"{RED}Password rejected by panel. Try again.{RESET}")
+            continue
+        break
     twofa = xui.get("twofa", "")
 
     wa_enabled = False
