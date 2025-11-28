@@ -281,6 +281,8 @@ def write_service(base: Path, venv: Path, env_path: Path):
         EnvironmentFile={env_path}
         ExecStart={venv}/bin/python pTblock/torrent_watch.py
         Restart=on-failure
+        TimeoutStopSec=5
+        KillMode=process
 
         [Install]
         WantedBy=multi-user.target
@@ -304,6 +306,8 @@ def write_panel_service(base: Path, venv: Path, env_path: Path, port: str):
         EnvironmentFile={env_path}
         ExecStart={venv}/bin/uvicorn pTblock.panel_app:app --host 0.0.0.0 --port {port}
         Restart=on-failure
+        TimeoutStopSec=5
+        KillMode=process
 
         [Install]
         WantedBy=multi-user.target
