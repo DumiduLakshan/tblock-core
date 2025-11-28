@@ -463,6 +463,21 @@ def main():
     hostname = subprocess.getoutput("hostname") or None
     print(f"{CYAN}Validating token for IP {vps_ip}...{RESET}")
     result = validate_with_backend(token, vps_ip, hostname)
+    user_name = result.get("user_name") or result.get("username") or ""
+    expires_at = result.get("token_expires_at") or result.get("expires_at")
+    minutes_left = ""
+    if expires_at:
+        try:
+            import datetime
+
+            dt = datetime.datetime.fromisoformat(str(expires_at).replace("Z", "+00:00"))
+            diff = dt - datetime.datetime.now(datetime.timezone.utc)
+            minutes_left = max(int(diff.total_seconds() // 60), 0)
+        except Exception:
+            minutes_left = ""
+    hello = f"Hello {user_name}, " if user_name else "Hello, "
+    expiry_msg = f"your token is valid for ~{minutes_left} minutes" if minutes_left != "" else "token validated"
+    print(f"{GREEN}{hello}{expiry_msg}.{RESET}")
     print(f"{GREEN}✓ Token validated{RESET} (remaining slots: {result.get('remaining_slots')})")
     print(f"{YELLOW}Gathering panel details...{RESET}")
 
@@ -488,7 +503,6 @@ def main():
                 if url in seen:
                     continue
                 seen.add(url)
-                print(f"{CYAN}Trying panel login at {url} with user {xui['username']}...{RESET}")
                 try:
                     resp = sess.post(url, json=payload, timeout=15, verify=False, allow_redirects=True)
                     if resp.status_code < 400:
