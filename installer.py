@@ -319,10 +319,11 @@ def write_panel_service(base: Path, venv: Path, env_path: Path, port: str):
 
 def install_service_unit(service_path: Path):
     target = Path("/etc/systemd/system") / service_path.name
+    service_name = service_path.name
     cmds = [
         (["cp", str(service_path), str(target)], "copy service"),
         (["systemctl", "daemon-reload"], "daemon-reload"),
-        (["systemctl", "enable", "--now", "tblock-watcher.service"], "enable/start service"),
+        (["systemctl", "enable", "--now", service_name], "enable/start service"),
     ]
     for cmd, desc in cmds:
         final = cmd if os.geteuid() == 0 else ["sudo"] + cmd
@@ -470,28 +471,29 @@ def main():
         if not panel_pass:
             print(f"{YELLOW}Password required.{RESET}")
             continue
-        # quick auth check
         try:
-            sess = requests.Session()
+            sess = REQUESTS.Session()
             payload = {"username": xui["username"], "password": panel_pass}
             if xui.get("twofa"):
                 payload["twoFactorCode"] = xui["twofa"]
             url_https = f"https://{xui['domain']}:{xui['port']}{xui['base']}/login/"
             url_http = f"http://{xui['domain']}:{xui['port']}{xui['base']}/login/"
+            print(f"{CYAN}Trying panel login at {url_https} with user {xui['username']}...{RESET}")
             ok = False
             for url in (url_https, url_http):
                 try:
-                    resp = sess.post(url, data=payload, timeout=10, verify=False)
-                    if resp.status_code < 400:
+                    resp = sess.post(url, data=payload, timeout=12, verify=False)
+                    if resp.status_code == 200:
                         ok = True
                         break
-                except Exception:
+                except Exception as e:
+                    print(f"{YELLOW}Login attempt to {url} failed: {e}{RESET}")
                     continue
             if not ok:
                 print(f"{RED}Password rejected by panel. Try again.{RESET}")
                 continue
-        except Exception:
-            print(f"{RED}Password rejected by panel. Try again.{RESET}")
+        except Exception as e:
+            print(f"{RED}Password rejected by panel ({e}). Try again.{RESET}")
             continue
         break
     twofa = xui.get("twofa", "")
