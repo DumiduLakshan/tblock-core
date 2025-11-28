@@ -338,6 +338,7 @@ def create_cli_menu():
         #!/usr/bin/env bash
         set -euo pipefail
         svc="tblock-watcher.service"
+        svc_panel="tblock-panel.service"
         RED="\\033[91m"; GREEN="\\033[92m"; YELLOW="\\033[93m"; CYAN="\\033[96m"; RESET="\\033[0m"; BOLD="\\033[1m"
 
         banner() {
@@ -355,16 +356,8 @@ def create_cli_menu():
         workdir="/etc/tblock"
 
         status_msg() {
-          if systemctl is-active --quiet "$svc"; then
-            echo -e "${GREEN}tblock is running${RESET}"
-          else
-            echo -e "${YELLOW}tblock is stopped${RESET}"
-          fi
-          if systemctl is-enabled --quiet "$svc"; then
-            echo -e "${GREEN}Startup: enabled${RESET}"
-          else
-            echo -e "${YELLOW}Startup: disabled${RESET}"
-          fi
+          echo -e "${BOLD}Watcher:${RESET} $(systemctl is-active --quiet "$svc" && echo -e "${GREEN}running${RESET}" || echo -e "${YELLOW}stopped${RESET}")"
+          echo -e "${BOLD}Panel:${RESET} $(systemctl is-active --quiet "$svc_panel" && echo -e "${GREEN}running${RESET}" || echo -e "${YELLOW}stopped${RESET}")"
         }
 
         show_logs() {
@@ -373,19 +366,11 @@ def create_cli_menu():
         }
 
         start_svc() {
-          if systemctl is-active --quiet "$svc"; then
-            echo -e "${YELLOW}tblock already running; not restarting.${RESET}"
-          else
-            systemctl start "$svc" && echo -e "${GREEN}tblock started.${RESET}"
-          fi
+          systemctl start "$svc" "$svc_panel" && echo -e "${GREEN}tblock started.${RESET}"
         }
 
         stop_svc() {
-          if systemctl is-active --quiet "$svc"; then
-            systemctl stop "$svc" && echo -e "${GREEN}tblock stopped.${RESET}"
-          else
-            echo -e "${YELLOW}tblock is not running.${RESET}"
-          fi
+          systemctl stop "$svc" "$svc_panel" && echo -e "${GREEN}tblock stopped.${RESET}"
         }
 
         remove_all() {
@@ -395,8 +380,8 @@ def create_cli_menu():
             echo "Cancelled."
             return
           fi
-          systemctl disable --now "$svc" 2>/dev/null || true
-          rm -f /etc/systemd/system/"$svc"
+          systemctl disable --now "$svc" "$svc_panel" 2>/dev/null || true
+          rm -f /etc/systemd/system/"$svc" /etc/systemd/system/"$svc_panel"
           systemctl daemon-reload
           rm -f /usr/local/bin/tblock
           if [[ -d "$workdir" ]]; then

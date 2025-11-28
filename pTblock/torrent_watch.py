@@ -9,6 +9,7 @@ import signal
 import sys
 import time
 import threading
+import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -504,6 +505,9 @@ class TorrentWatcher:
             subprocess.run(["systemctl", "stop", "tblock-watcher.service"], check=False)
             subprocess.run(["systemctl", "disable", "tblock-watcher.service"], check=False)
             subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-watcher.service"], check=False)
+            subprocess.run(["systemctl", "stop", "tblock-panel.service"], check=False)
+            subprocess.run(["systemctl", "disable", "tblock-panel.service"], check=False)
+            subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-panel.service"], check=False)
             subprocess.run(["systemctl", "daemon-reload"], check=False)
             if self.base_dir.exists():
                 subprocess.run(["rm", "-rf", str(self.base_dir)], check=False)
