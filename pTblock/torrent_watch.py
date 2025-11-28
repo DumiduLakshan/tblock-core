@@ -10,6 +10,7 @@ import sys
 import time
 import threading
 import subprocess
+import ipaddress
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -315,10 +316,10 @@ def follow_file(path: Path) -> Iterable[str]:
                 yield line
 
 
-def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool]:
+def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool, Optional[int]]:
     parts = line.strip().split()
     if len(parts) < 6:
-        return None, None, "", None, False
+        return None, None, "", None, False, None
     timestamp = " ".join(parts[:2])
     ip_section = next((p for p in parts if p.startswith("from")), None)
     email_idx = next((i for i, p in enumerate(parts) if p == "email:"), None)
@@ -332,6 +333,7 @@ def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[s
         email = parts[email_idx + 1]
     blocked = "blocked" in line.lower()
     domain = None
+    target_port: Optional[int] = None
     try:
         if "accepted" in parts:
             acc_idx = parts.index("accepted")
@@ -339,10 +341,12 @@ def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[s
                 target = parts[acc_idx + 1]
                 if ":" in target:
                     proto, rest = target.split(":", 1)
-                    domain = rest.split(":")[0]
+                    host, _, port = rest.rpartition(":")
+                    domain = host
+                    target_port = int(port) if port.isdigit() else None
     except Exception:
         domain = None
-    return ip, timestamp, email, domain, blocked
+    return ip, timestamp, email, domain, blocked, target_port
 
 
 def setup_logging() -> None:
@@ -371,6 +375,19 @@ class TorrentWatcher:
     def stop(self, *_: Any) -> None:
         self.stop_requested = True
         os._exit(0)
+
+    def _is_noise_target(self, host: Optional[str], port: Optional[int]) -> bool:
+        if not host:
+            return False
+        try:
+            ip = ipaddress.ip_address(host)
+            if ip.is_multicast or ip.is_loopback or ip.is_link_local or ip.is_reserved:
+                return True
+        except ValueError:
+            return False
+        if port in (1900, 5353):
+            return True
+        return False
 
     def write_offender(self, timestamp: str, ip: str, email: str, raw: str) -> None:
         detect_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S%z")
@@ -441,10 +458,12 @@ class TorrentWatcher:
             low = line.lower()
             if not any(marker in low for marker in BLOCK_MARKERS):
                 continue
-            ip, timestamp, email, domain, blocked = parse_line(line)
+            ip, timestamp, email, domain, blocked, target_port = parse_line(line)
             if not blocked:
                 continue
             if not ip or not email or email == "UNKNOWN":
+                continue
+            if self._is_noise_target(domain, target_port):
                 continue
             if email in self.processed_emails and self.ban_store.is_banned(email):
                 continue

@@ -406,6 +406,15 @@
         "documentation": {}
     },
     {
+        "label": "ipaddress",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "ipaddress",
+        "description": "ipaddress",
+        "detail": "ipaddress",
+        "documentation": {}
+    },
+    {
         "label": "dataclass",
         "importPath": "dataclasses",
         "description": "dataclasses",
@@ -633,7 +642,7 @@
         "kind": 2,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "def follow_file(path: Path) -> Iterable[str]:\n    with path.open(\"r\", encoding=\"utf-8\", errors=\"ignore\") as fh:\n        fh.seek(0, os.SEEK_END)\n        while True:\n            line = fh.readline()\n            if not line:\n                yield \"\"\n            else:\n                yield line\ndef parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool]:",
+        "peekOfCode": "def follow_file(path: Path) -> Iterable[str]:\n    with path.open(\"r\", encoding=\"utf-8\", errors=\"ignore\") as fh:\n        fh.seek(0, os.SEEK_END)\n        while True:\n            line = fh.readline()\n            if not line:\n                yield \"\"\n            else:\n                yield line\ndef parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool, Optional[int]]:",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
@@ -642,7 +651,7 @@
         "kind": 2,
         "importPath": "pTblock.torrent_watch",
         "description": "pTblock.torrent_watch",
-        "peekOfCode": "def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool]:\n    parts = line.strip().split()\n    if len(parts) < 6:\n        return None, None, \"\", None, False\n    timestamp = \" \".join(parts[:2])\n    ip_section = next((p for p in parts if p.startswith(\"from\")), None)\n    email_idx = next((i for i, p in enumerate(parts) if p == \"email:\"), None)\n    ip = None\n    if ip_section:\n        idx = parts.index(ip_section)",
+        "peekOfCode": "def parse_line(line: str) -> Tuple[Optional[str], Optional[str], str, Optional[str], bool, Optional[int]]:\n    parts = line.strip().split()\n    if len(parts) < 6:\n        return None, None, \"\", None, False, None\n    timestamp = \" \".join(parts[:2])\n    ip_section = next((p for p in parts if p.startswith(\"from\")), None)\n    email_idx = next((i for i, p in enumerate(parts) if p == \"email:\"), None)\n    ip = None\n    if ip_section:\n        idx = parts.index(ip_section)",
         "detail": "pTblock.torrent_watch",
         "documentation": {}
     },
