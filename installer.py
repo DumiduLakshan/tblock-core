@@ -464,7 +464,21 @@ def main():
     print(f"{CYAN}Validating token for IP {vps_ip}...{RESET}")
     result = validate_with_backend(token, vps_ip, hostname)
     user_name = result.get("user_name") or result.get("username") or ""
-    expires_at = result.get("token_expires_at") or result.get("expires_at")
+    # take the earliest of token/user expiry if both present
+    token_exp = result.get("token_expires_at") or result.get("expires_at")
+    user_exp = result.get("user_expires_at")
+    expires_at = None
+    if token_exp and user_exp:
+        try:
+            import datetime
+
+            dt_token = datetime.datetime.fromisoformat(str(token_exp).replace("Z", "+00:00"))
+            dt_user = datetime.datetime.fromisoformat(str(user_exp).replace("Z", "+00:00"))
+            expires_at = dt_token if dt_token < dt_user else dt_user
+        except Exception:
+            expires_at = token_exp or user_exp
+    else:
+        expires_at = token_exp or user_exp
     minutes_left = ""
     if expires_at:
         try:
@@ -475,8 +489,8 @@ def main():
             minutes_left = max(int(diff.total_seconds() // 60), 0)
         except Exception:
             minutes_left = ""
-    hello = f"Hello {user_name}, " if user_name else "Hello, "
-    expiry_msg = f"your token is valid for ~{minutes_left} minutes" if minutes_left != "" else "token validated"
+    hello = f"Hello {user_name}, " if user_name else ""
+    expiry_msg = f"token valid for ~{minutes_left} minutes" if minutes_left != "" else "token validated"
     print(f"{GREEN}{hello}{expiry_msg}.{RESET}")
     print(f"{GREEN}✓ Token validated{RESET} (remaining slots: {result.get('remaining_slots')})")
     print(f"{YELLOW}Gathering panel details...{RESET}")
