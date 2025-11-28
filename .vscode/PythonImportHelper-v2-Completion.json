@@ -179,6 +179,33 @@
         "documentation": {}
     },
     {
+        "label": "secrets",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "secrets",
+        "description": "secrets",
+        "detail": "secrets",
+        "documentation": {}
+    },
+    {
+        "label": "hmac",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "hmac",
+        "description": "hmac",
+        "detail": "hmac",
+        "documentation": {}
+    },
+    {
+        "label": "hashlib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "hashlib",
+        "description": "hashlib",
+        "detail": "hashlib",
+        "documentation": {}
+    },
+    {
         "label": "uvicorn",
         "kind": 6,
         "isExtraImport": true,
@@ -220,6 +247,14 @@
         "documentation": {}
     },
     {
+        "label": "Request",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
         "label": "HTMLResponse",
         "importPath": "fastapi.responses",
         "description": "fastapi.responses",
@@ -233,22 +268,6 @@
         "description": "fastapi.responses",
         "isExtraImport": true,
         "detail": "fastapi.responses",
-        "documentation": {}
-    },
-    {
-        "label": "HTTPBasic",
-        "importPath": "fastapi.security",
-        "description": "fastapi.security",
-        "isExtraImport": true,
-        "detail": "fastapi.security",
-        "documentation": {}
-    },
-    {
-        "label": "HTTPBasicCredentials",
-        "importPath": "fastapi.security",
-        "description": "fastapi.security",
-        "isExtraImport": true,
-        "detail": "fastapi.security",
         "documentation": {}
     },
     {
@@ -453,16 +472,52 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def init():\n    global SETTINGS, STORE, XUI\n    load_dotenv()\n    SETTINGS = load_settings()\n    STORE = BanStore(SETTINGS.ban_db)\n    XUI = XuiClient(SETTINGS)\ndef auth(creds: HTTPBasicCredentials = Depends(security)) -> None:\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    user_ok = creds.username == SETTINGS.username",
+        "peekOfCode": "def init():\n    global SETTINGS, STORE, XUI, SECRET\n    load_dotenv()\n    SETTINGS = load_settings()\n    STORE = BanStore(SETTINGS.ban_db)\n    XUI = XuiClient(SETTINGS)\n    SECRET = hashlib.sha256(f\"{SETTINGS.username}{SETTINGS.password}\".encode()).hexdigest()\ndef sign_cookie(username: str) -> str:\n    msg = username.encode()\n    sig = hmac.new(SECRET.encode(), msg, hashlib.sha256).hexdigest()",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
     {
-        "label": "auth",
+        "label": "sign_cookie",
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def auth(creds: HTTPBasicCredentials = Depends(security)) -> None:\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    user_ok = creds.username == SETTINGS.username\n    pass_ok = creds.password == SETTINGS.password\n    if not (user_ok and pass_ok):\n        raise HTTPException(status_code=401, detail=\"Unauthorized\")\n@app.get(\"/\", response_class=HTMLResponse)\ndef home(q: str = \"\", _: None = Depends(auth)):\n    bans = STORE.list(q) if STORE else []",
+        "peekOfCode": "def sign_cookie(username: str) -> str:\n    msg = username.encode()\n    sig = hmac.new(SECRET.encode(), msg, hashlib.sha256).hexdigest()\n    return f\"{username}:{sig}\"\ndef verify_cookie(token: str) -> bool:\n    if \":\" not in token:\n        return False\n    user, sig = token.split(\":\", 1)\n    expected = hmac.new(SECRET.encode(), user.encode(), hashlib.sha256).hexdigest()\n    return hmac.compare_digest(sig, expected) and user == SETTINGS.username",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "verify_cookie",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def verify_cookie(token: str) -> bool:\n    if \":\" not in token:\n        return False\n    user, sig = token.split(\":\", 1)\n    expected = hmac.new(SECRET.encode(), user.encode(), hashlib.sha256).hexdigest()\n    return hmac.compare_digest(sig, expected) and user == SETTINGS.username\ndef require_auth(request: Request):\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    token = request.cookies.get(\"tblock_auth\", \"\")",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "require_auth",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def require_auth(request: Request):\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    token = request.cookies.get(\"tblock_auth\", \"\")\n    if not token or not verify_cookie(token):\n        raise HTTPException(status_code=401, detail=\"Unauthorized\")\n@app.get(\"/login\", response_class=HTMLResponse)\ndef login_page():\n    html = \"\"\"\n    <html><head><title>Tblock Admin</title>",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "login_page",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def login_page():\n    html = \"\"\"\n    <html><head><title>Tblock Admin</title>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n    <link href=\"https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap\" rel=\"stylesheet\">\n    <style>\n    body { margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; background:#f2f4ff;\n           font-family:'Poppins',sans-serif; }",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "do_login",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def do_login(username: str = Form(...), password: str = Form(...)):\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    if username == SETTINGS.username and password == SETTINGS.password:\n        token = sign_cookie(username)\n        resp = RedirectResponse(url=\"/\", status_code=302)\n        resp.set_cookie(\"tblock_auth\", token, httponly=True, max_age=60 * 60 * 12)\n        return resp\n    return HTMLResponse(\"<html><body>Invalid credentials.<br><a href='/login'>Try again</a></body></html>\", status_code=401)\n@app.get(\"/\", response_class=HTMLResponse)",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
@@ -471,7 +526,7 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def home(q: str = \"\", _: None = Depends(auth)):\n    bans = STORE.list(q) if STORE else []\n    stats = STORE.stats() if STORE else {\"total\": 0}\n    rows = \"\".join(\n        f\"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>\"\n        f\"<td><form method='post' action='/unban'>\"\n        f\"<input type='hidden' name='email' value='{b['email']}'/>\"\n        f\"<button type='submit' class='pill red'>Unban</button></form></td></tr>\"\n        for b in bans\n    )",
+        "peekOfCode": "def home(q: str = \"\", request: Request = None):\n    try:\n        require_auth(request)\n    except Exception:\n        return RedirectResponse(url=\"/login\", status_code=302)\n    bans = STORE.list(q) if STORE else []\n    stats = STORE.stats() if STORE else {\"total\": 0}\n    rows = \"\".join(\n        f\"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>\"\n        f\"<td><form method='post' action='/unban'>\"",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
@@ -480,7 +535,7 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def unban(email: str = Form(...), _: None = Depends(auth)):\n    if not XUI or not STORE:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    client = XUI.get_client(email)\n    if not client:\n        raise HTTPException(status_code=404, detail=\"Client not found\")\n    inbound_id = client.get(\"inboundId\") or client.get(\"inbound_id\")\n    client_uuid = client.get(\"uuid\") or client.get(\"id\")\n    if inbound_id is None or client_uuid is None:\n        raise HTTPException(status_code=400, detail=\"Client data incomplete\")",
+        "peekOfCode": "def unban(email: str = Form(...), request: Request = None):\n    try:\n        require_auth(request)\n    except Exception:\n        return RedirectResponse(url=\"/login\", status_code=302)\n    if not XUI or not STORE:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    client = XUI.get_client(email)\n    if not client:\n        STORE.mark_unbanned(email)",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
@@ -489,16 +544,7 @@
         "kind": 5,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent\nif str(BASE_DIR) not in sys.path:\n    sys.path.insert(0, str(BASE_DIR))\nfrom ban_store import BanStore\nfrom torrent_watch import Settings, load_settings, XuiClient\nsecurity = HTTPBasic()\napp = FastAPI(title=\"tblock.fk bans\")\nSETTINGS: Optional[Settings] = None\nSTORE: Optional[BanStore] = None\nXUI: Optional[XuiClient] = None",
-        "detail": "pTblock.panel_app",
-        "documentation": {}
-    },
-    {
-        "label": "security",
-        "kind": 5,
-        "importPath": "pTblock.panel_app",
-        "description": "pTblock.panel_app",
-        "peekOfCode": "security = HTTPBasic()\napp = FastAPI(title=\"tblock.fk bans\")\nSETTINGS: Optional[Settings] = None\nSTORE: Optional[BanStore] = None\nXUI: Optional[XuiClient] = None\ndef init():\n    global SETTINGS, STORE, XUI\n    load_dotenv()\n    SETTINGS = load_settings()\n    STORE = BanStore(SETTINGS.ban_db)",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent\nif str(BASE_DIR) not in sys.path:\n    sys.path.insert(0, str(BASE_DIR))\nfrom ban_store import BanStore\nfrom torrent_watch import Settings, load_settings, XuiClient\napp = FastAPI(title=\"Tblock Admin\")\nSETTINGS: Optional[Settings] = None\nSTORE: Optional[BanStore] = None\nXUI: Optional[XuiClient] = None\nSECRET: str = secrets.token_hex(16)",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
@@ -507,7 +553,7 @@
         "kind": 5,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "app = FastAPI(title=\"tblock.fk bans\")\nSETTINGS: Optional[Settings] = None\nSTORE: Optional[BanStore] = None\nXUI: Optional[XuiClient] = None\ndef init():\n    global SETTINGS, STORE, XUI\n    load_dotenv()\n    SETTINGS = load_settings()\n    STORE = BanStore(SETTINGS.ban_db)\n    XUI = XuiClient(SETTINGS)",
+        "peekOfCode": "app = FastAPI(title=\"Tblock Admin\")\nSETTINGS: Optional[Settings] = None\nSTORE: Optional[BanStore] = None\nXUI: Optional[XuiClient] = None\nSECRET: str = secrets.token_hex(16)\ndef init():\n    global SETTINGS, STORE, XUI, SECRET\n    load_dotenv()\n    SETTINGS = load_settings()\n    STORE = BanStore(SETTINGS.ban_db)",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
