@@ -490,11 +490,16 @@ def main():
                 seen.add(url)
                 print(f"{CYAN}Trying panel login at {url} with user {xui['username']}...{RESET}")
                 try:
-                    resp = sess.post(url, data=payload, timeout=15, verify=False, allow_redirects=True)
+                    resp = sess.post(url, json=payload, timeout=15, verify=False, allow_redirects=True)
                     if resp.status_code < 400:
-                        ok = True
-                        break
-                    snippet = resp.text[:120].replace("\n", " ")
+                        try:
+                            data = resp.json()
+                            if isinstance(data, dict) and data.get("success") is True:
+                                ok = True
+                                break
+                        except Exception:
+                            pass
+                    snippet = resp.text[:160].replace("\n", " ")
                     print(f"{YELLOW}Login attempt to {url} returned {resp.status_code}: {snippet}{RESET}")
                 except Exception as e:
                     print(f"{YELLOW}Login attempt to {url} failed: {e}{RESET}")
