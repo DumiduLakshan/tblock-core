@@ -471,7 +471,7 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def home(q: str = \"\", _: None = Depends(auth)):\n    bans = STORE.list(q) if STORE else []\n    stats = STORE.stats() if STORE else {\"total\": 0, \"unbanned\": 0, \"banned\": 0}\n    rows = \"\".join(\n        f\"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['status']}</td>\"\n        f\"<td>{b['created_at']}</td><td><form method='post' action='/unban'>\"\n        f\"<input type='hidden' name='email' value='{b['email']}'/>\"\n        f\"<button type='submit'>Unban</button></form></td></tr>\"\n        for b in bans\n    )",
+        "peekOfCode": "def home(q: str = \"\", _: None = Depends(auth)):\n    bans = STORE.list(q) if STORE else []\n    stats = STORE.stats() if STORE else {\"total\": 0}\n    rows = \"\".join(\n        f\"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>\"\n        f\"<td><form method='post' action='/unban'>\"\n        f\"<input type='hidden' name='email' value='{b['email']}'/>\"\n        f\"<button type='submit' class='pill red'>Unban</button></form></td></tr>\"\n        for b in bans\n    )",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },

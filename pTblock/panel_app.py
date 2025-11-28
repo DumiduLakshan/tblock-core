@@ -44,26 +44,66 @@ def auth(creds: HTTPBasicCredentials = Depends(security)) -> None:
 @app.get("/", response_class=HTMLResponse)
 def home(q: str = "", _: None = Depends(auth)):
     bans = STORE.list(q) if STORE else []
-    stats = STORE.stats() if STORE else {"total": 0, "unbanned": 0, "banned": 0}
+    stats = STORE.stats() if STORE else {"total": 0}
     rows = "".join(
-        f"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['status']}</td>"
-        f"<td>{b['created_at']}</td><td><form method='post' action='/unban'>"
+        f"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>"
+        f"<td><form method='post' action='/unban'>"
         f"<input type='hidden' name='email' value='{b['email']}'/>"
-        f"<button type='submit'>Unban</button></form></td></tr>"
+        f"<button type='submit' class='pill red'>Unban</button></form></td></tr>"
         for b in bans
     )
     html = f"""
     <html><head><title>tblock.fk bans</title>
-    <style>body{{font-family:sans-serif;background:#0b1221;color:#e5e7eb;padding:20px;}}
-    table{{width:100%;border-collapse:collapse;margin-top:10px;}}td,th{{padding:8px;border-bottom:1px solid #1f2937;}}
-    input,button{{padding:8px;border-radius:6px;border:1px solid #1f2937;background:#111827;color:#e5e7eb;}}
-    .card{{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:12px;margin-bottom:12px;}}
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+    :root {{
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent2: #22d3ee;
+      --danger: #ef4444;
+      --radius: 14px;
+      --shadow: 0 20px 60px rgba(15,23,42,0.08);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }}
+    body {{ margin:0; padding:18px; background: var(--bg); color: var(--text); }}
+    .hero {{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }}
+    .title {{ font-size:24px; font-weight:700; letter-spacing:-0.5px; }}
+    .credit {{ color: var(--muted); font-size:12px; }}
+    .grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin:12px 0; }}
+    .card {{ background: var(--card); border:1px solid var(--border); border-radius: var(--radius); padding:14px; box-shadow: var(--shadow); }}
+    table {{ width:100%; border-collapse:collapse; margin-top:10px; }}
+    th,td {{ padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px; }}
+    th {{ text-align:left; color: var(--muted); }}
+    input {{ width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px; }}
+    .pill {{ padding:8px 12px; border:none; border-radius:10px; color:#fff; background: linear-gradient(135deg, var(--accent), var(--accent2)); cursor:pointer; }}
+    .pill.red {{ background: linear-gradient(135deg, #ef4444, #f97316); }}
+    .pill.subtle {{ background:#f3f4f6; color:#111827; border:1px solid var(--border); }}
+    @media (max-width: 640px) {{ th,td {{ font-size:12px; }} }}
     </style></head><body>
-    <h2>tblock.fk · ban manager</h2>
-    <div class="card">Total: {stats['total']} · Banned: {stats['banned']} · Unbanned: {stats['unbanned']}</div>
-    <form method="get"><input name="q" placeholder="Search email" value="{q}"/> <button type="submit">Search</button></form>
-    <table><thead><tr><th>Email</th><th>IP</th><th>Domain</th><th>Status</th><th>When</th><th>Action</th></tr></thead>
-    <tbody>{rows}</tbody></table>
+    <div class="hero">
+      <div><div class="title">tblock.fk ban manager</div><div class="credit">built by @dragonforce</div></div>
+      <div class="card" style="padding:10px 12px;">Total bans: {stats['total']}</div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <form method="get">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input name="q" placeholder="Search email" value="{q}" />
+            <button class="pill subtle" type="submit">Search</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Email</th><th>IP</th><th>Domain</th><th>When</th><th>Action</th></tr></thead>
+        <tbody>{rows or '<tr><td colspan="5" style="color:var(--muted)">No bans yet.</td></tr>'}</tbody>
+      </table>
+    </div>
     </body></html>
     """
     return HTMLResponse(content=html)

@@ -71,20 +71,17 @@ class BanStore:
         cur = conn.cursor()
         cur.execute("select count(*) from bans")
         total = cur.fetchone()[0]
-        cur.execute("select count(*) from bans where status='unbanned'")
-        unbanned = cur.fetchone()[0]
         conn.close()
-        return {"total": total, "unbanned": unbanned, "banned": total - unbanned}
+        return {"total": total}
 
 
 
     def mark_unbanned(self, email: str) -> None:
-        now = datetime.now(timezone.utc).isoformat()
         conn = sqlite3.connect(self.path)
         cur = conn.cursor()
         cur.execute(
-            "update bans set status='unbanned', updated_at=? where email=? and status='banned'",
-            (now, email),
+            "delete from bans where email=?",
+            (email,),
         )
         conn.commit()
         conn.close()
