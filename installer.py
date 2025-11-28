@@ -578,7 +578,7 @@ def main():
     subprocess.run(["systemctl", "status", "tblock-watcher.service", "--no-pager"])
     print(f"{CYAN}Panel status: {RESET}")
     subprocess.run(["systemctl", "status", "tblock-panel.service", "--no-pager"])
-    print(f"{GREEN}Panel URL: http://{server_ip}:{env_values['PANEL_PORT']}/{RESET}")
+    print(f"{GREEN}Panel URL: http://{server_ip}:{env_values['PANEL_PORT']}/login{RESET}")
     print(f"{GREEN}Login with panel username: {xui['username']} and your provided password.{RESET}")
 
 

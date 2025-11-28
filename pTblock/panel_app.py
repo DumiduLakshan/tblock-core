@@ -8,7 +8,7 @@ from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException, Form, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -114,8 +114,9 @@ def home(q: str = "", request: Request = None):
     bans = STORE.list(q) if STORE else []
     stats = STORE.stats() if STORE else {"total": 0}
     rows = "".join(
-        f"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>"
-        f"<td><form method='post' action='/unban'>"
+        f"<tr onclick=\"showDetails('{b['email']}')\" style='cursor:pointer;'>"
+        f"<td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>"
+        f"<td><form method='post' action='/unban' onClick='event.stopPropagation();'>"
         f"<input type='hidden' name='email' value='{b['email']}'/>"
         f"<button type='submit' class='pill red'>Unban</button></form></td></tr>"
         for b in bans
@@ -153,6 +154,13 @@ def home(q: str = "", request: Request = None):
     .pill {{ padding:10px 12px; border:none; border-radius:12px; color:#fff; background: linear-gradient(135deg, var(--accent), var(--accent2)); cursor:pointer; box-shadow:0 16px 40px rgba(99,102,241,0.18); }}
     .pill.red {{ background: linear-gradient(135deg, #ef4444, #f97316); }}
     .pill.subtle {{ background:#f3f4f6; color:#111827; border:1px solid var(--border); box-shadow:none; }}
+    .modal-backdrop {{
+      position:fixed; inset:0; background:rgba(15,23,42,0.45); display:none; align-items:center; justify-content:center; padding:12px;
+    }}
+    .modal {{
+      background:#fff; border-radius:16px; padding:16px; max-width:400px; width:100%; box-shadow:0 30px 80px rgba(0,0,0,0.2);
+      border:1px solid #e5e7eb;
+    }}
     @media (max-width: 640px) {{ th,td {{ font-size:12px; }} .hero {{ align-items:flex-start; gap:4px; }} }}
     </style></head><body>
     <div class="hero">
@@ -175,6 +183,45 @@ def home(q: str = "", request: Request = None):
         <tbody>{rows or '<tr><td colspan="5" style="color:var(--muted)">No bans yet.</td></tr>'}</tbody>
       </table>
     </div>
+    <div id="modal" class="modal-backdrop" onclick="hideModal()">
+      <div class="modal" onclick="event.stopPropagation();">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-weight:700;">Client details</div>
+          <button class="pill subtle" style="width:80px;" onclick="hideModal()">Close</button>
+        </div>
+        <div id="modal-body" style="margin-top:10px;color:#111827;font-size:14px;"></div>
+      </div>
+    </div>
+    <script>
+    async function showDetails(email) {{
+      try {{
+        const res = await fetch(`/api/client/${{encodeURIComponent(email)}}`);
+        if (!res.ok) throw new Error('Request failed');
+        const data = await res.json();
+        const body = document.getElementById('modal-body');
+        body.innerHTML = `
+          <div><strong>Email:</strong> ${'{'}data.email || email{'}'}</div>
+          <div><strong>Inbound ID:</strong> ${'{'}data.inboundId || '-'{' }'}</div>
+          <div><strong>UUID:</strong> ${'{'}data.uuid || '-'{' }'}</div>
+          <div><strong>Status:</strong> ${'{'}data.enable ? 'Enabled' : 'Disabled'{'}'}</div>
+          <div><strong>Up/Down/Total:</strong> ${'{'}data.up || '-'{' }'} / ${'{'}data.down || '-'{' }'} / ${'{'}data.total || '-'{' }'}</div>
+          <div><strong>Sub ID:</strong> ${'{'}data.subId || '-'{' }'}</div>
+          <div><strong>All Time:</strong> ${'{'}data.allTime || '-'{' }'}</div>
+          <div><strong>Expiry:</strong> ${'{'}data.expiryTime || '-'{' }'}</div>
+          <div><strong>Reset:</strong> ${'{'}data.reset || '-'{' }'}</div>
+          <div><strong>Last Online:</strong> ${'{'}data.lastOnline || '-'{' }'}</div>
+        `;
+        document.getElementById('modal').style.display = 'flex';
+      }} catch (err) {{
+        const body = document.getElementById('modal-body');
+        body.innerHTML = `<div style="color:#ef4444;">Failed to load details.</div>`;
+        document.getElementById('modal').style.display = 'flex';
+      }}
+    }}
+    function hideModal() {{
+      document.getElementById('modal').style.display = 'none';
+    }}
+    </script>
     </body></html>
     """
     return HTMLResponse(content=html)
@@ -202,6 +249,46 @@ def unban(email: str = Form(...), request: Request = None):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     return RedirectResponse(url="/", status_code=302)
+
+
+@app.get("/api/client/{email}")
+def client_details(email: str, request: Request = None):
+    try:
+        require_auth(request)
+    except Exception:
+        return JSONResponse({"detail": "Unauthorized"}, status_code=401)
+    try:
+        client = XUI.get_client(email)
+    except Exception as exc:
+        return JSONResponse({"detail": str(exc)}, status_code=500)
+    if not client:
+        return JSONResponse({"detail": "Not found"}, status_code=404)
+    up = client.get("up", 0)
+    down = client.get("down", 0)
+    total = client.get("total", 0)
+
+    def bytes_to_human(num: int) -> str:
+        for unit in ["B", "KB", "MB", "GB", "TB"]:
+            if num < 1024:
+                return f"{num:.2f} {unit}"
+            num /= 1024
+        return f"{num:.2f} PB"
+
+    resp = {
+        "email": client.get("email"),
+        "inboundId": client.get("inboundId") or client.get("inbound_id"),
+        "uuid": client.get("uuid") or client.get("id"),
+        "enable": client.get("enable"),
+        "up": bytes_to_human(int(up)),
+        "down": bytes_to_human(int(down)),
+        "total": bytes_to_human(int(total)),
+        "subId": client.get("subId") or client.get("subid"),
+        "allTime": bytes_to_human(int(client.get("allTime", 0))),
+        "expiryTime": client.get("expiryTime"),
+        "reset": client.get("reset"),
+        "lastOnline": client.get("lastOnline"),
+    }
+    return JSONResponse(resp)
 
 
 init()

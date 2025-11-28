@@ -271,6 +271,14 @@
         "documentation": {}
     },
     {
+        "label": "JSONResponse",
+        "importPath": "fastapi.responses",
+        "description": "fastapi.responses",
+        "isExtraImport": true,
+        "detail": "fastapi.responses",
+        "documentation": {}
+    },
+    {
         "label": "load_dotenv",
         "importPath": "dotenv",
         "description": "dotenv",
@@ -526,7 +534,7 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def home(q: str = \"\", request: Request = None):\n    try:\n        require_auth(request)\n    except Exception:\n        return RedirectResponse(url=\"/login\", status_code=302)\n    bans = STORE.list(q) if STORE else []\n    stats = STORE.stats() if STORE else {\"total\": 0}\n    rows = \"\".join(\n        f\"<tr><td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>\"\n        f\"<td><form method='post' action='/unban'>\"",
+        "peekOfCode": "def home(q: str = \"\", request: Request = None):\n    try:\n        require_auth(request)\n    except Exception:\n        return RedirectResponse(url=\"/login\", status_code=302)\n    bans = STORE.list(q) if STORE else []\n    stats = STORE.stats() if STORE else {\"total\": 0}\n    rows = \"\".join(\n        f\"<tr onclick=\\\"showDetails('{b['email']}')\\\" style='cursor:pointer;'>\"\n        f\"<td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>\"",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
@@ -536,6 +544,15 @@
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
         "peekOfCode": "def unban(email: str = Form(...), request: Request = None):\n    try:\n        require_auth(request)\n    except Exception:\n        return RedirectResponse(url=\"/login\", status_code=302)\n    if not XUI or not STORE:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    client = XUI.get_client(email)\n    if not client:\n        STORE.mark_unbanned(email)",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "client_details",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def client_details(email: str, request: Request = None):\n    try:\n        require_auth(request)\n    except Exception:\n        return JSONResponse({\"detail\": \"Unauthorized\"}, status_code=401)\n    try:\n        client = XUI.get_client(email)\n    except Exception as exc:\n        return JSONResponse({\"detail\": str(exc)}, status_code=500)\n    if not client:",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
