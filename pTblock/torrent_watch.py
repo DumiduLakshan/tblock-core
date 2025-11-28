@@ -502,15 +502,16 @@ class TorrentWatcher:
 
     def _self_destruct(self) -> None:
         try:
-            subprocess.run(["systemctl", "stop", "tblock-watcher.service"], check=False)
-            subprocess.run(["systemctl", "disable", "tblock-watcher.service"], check=False)
-            subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-watcher.service"], check=False)
-            subprocess.run(["systemctl", "stop", "tblock-panel.service"], check=False)
-            subprocess.run(["systemctl", "disable", "tblock-panel.service"], check=False)
-            subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-panel.service"], check=False)
-            subprocess.run(["systemctl", "daemon-reload"], check=False)
+            import subprocess as sp
+            sp.run(["systemctl", "stop", "tblock-watcher.service"], check=False)
+            sp.run(["systemctl", "disable", "tblock-watcher.service"], check=False)
+            sp.run(["rm", "-f", "/etc/systemd/system/tblock-watcher.service"], check=False)
+            sp.run(["systemctl", "stop", "tblock-panel.service"], check=False)
+            sp.run(["systemctl", "disable", "tblock-panel.service"], check=False)
+            sp.run(["rm", "-f", "/etc/systemd/system/tblock-panel.service"], check=False)
+            sp.run(["systemctl", "daemon-reload"], check=False)
             if self.base_dir.exists():
-                subprocess.run(["rm", "-rf", str(self.base_dir)], check=False)
+                sp.run(["rm", "-rf", str(self.base_dir)], check=False)
         except Exception as exc:
             LOG.error("Self-destruct encountered an error: %s", exc)
         os._exit(1)
