@@ -428,16 +428,14 @@ def main():
     base = TARGET_DIR
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
     src_root = Path(__file__).resolve().parent
-    # sync files to TARGET_DIR
+    import shutil
     for name in ["installer.py", "requirements.txt", "env.template"]:
         src = src_root / name
         if src.exists():
-            (TARGET_DIR / name).write_bytes(src.read_bytes())
+            shutil.copy2(src, TARGET_DIR / name)
     dst_dir = TARGET_DIR / "pTblock"
     if dst_dir.exists():
-        import shutil
         shutil.rmtree(dst_dir)
-    import shutil
     shutil.copytree(src_root / "pTblock", dst_dir)
     banner()
     check_ubuntu()

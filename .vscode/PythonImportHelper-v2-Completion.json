@@ -912,7 +912,7 @@
         "kind": 2,
         "importPath": "installer",
         "description": "installer",
-        "peekOfCode": "def main():\n    base = TARGET_DIR\n    TARGET_DIR.mkdir(parents=True, exist_ok=True)\n    src_root = Path(__file__).resolve().parent\n    # sync files to TARGET_DIR\n    for name in [\"installer.py\", \"requirements.txt\", \"env.template\"]:\n        src = src_root / name\n        if src.exists():\n            (TARGET_DIR / name).write_bytes(src.read_bytes())\n    dst_dir = TARGET_DIR / \"pTblock\"",
+        "peekOfCode": "def main():\n    base = TARGET_DIR\n    TARGET_DIR.mkdir(parents=True, exist_ok=True)\n    src_root = Path(__file__).resolve().parent\n    import shutil\n    for name in [\"installer.py\", \"requirements.txt\", \"env.template\"]:\n        src = src_root / name\n        if src.exists():\n            shutil.copy2(src, TARGET_DIR / name)\n    dst_dir = TARGET_DIR / \"pTblock\"",
         "detail": "installer",
         "documentation": {}
     },
