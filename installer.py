@@ -570,6 +570,8 @@ def main():
         print(f"{GREEN}tblock panel installed and running on port {env_values['PANEL_PORT']}.{RESET}")
     else:
         print(f"{YELLOW}Panel service not fully installed. Manual steps may be required.{RESET}")
+    subprocess.run(["systemctl", "restart", "tblock-watcher.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["systemctl", "restart", "tblock-panel.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     create_cli_menu()
     print(f"{GREEN}You can manage tblock via the 'tblock' command (status/logs/start/stop/remove).{RESET}")
     print(f"{CYAN}Watcher status: {RESET}")

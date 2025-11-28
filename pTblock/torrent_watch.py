@@ -441,7 +441,7 @@ class TorrentWatcher:
                 continue
             if not ip or not email or email == "UNKNOWN":
                 continue
-            if email in self.processed_emails:
+            if email in self.processed_emails and self.ban_store.is_banned(email):
                 continue
             LOG.info("Detected bittorrent usage from %s (%s) via %s", email, ip, domain or "unknown")
             self.write_offender(timestamp or "", ip, email, line)

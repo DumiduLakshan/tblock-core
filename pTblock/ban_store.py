@@ -74,7 +74,13 @@ class BanStore:
         conn.close()
         return {"total": total}
 
-
+    def is_banned(self, email: str) -> bool:
+        conn = sqlite3.connect(self.path)
+        cur = conn.cursor()
+        cur.execute("select 1 from bans where email=? limit 1", (email,))
+        row = cur.fetchone()
+        conn.close()
+        return row is not None
 
     def mark_unbanned(self, email: str) -> None:
         conn = sqlite3.connect(self.path)
