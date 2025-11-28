@@ -2,7 +2,6 @@ import getpass
 import json
 import os
 import platform
-import shutil
 import sqlite3
 import subprocess
 import sys
@@ -384,7 +383,7 @@ def create_cli_menu():
             echo "Cancelled."
             return
           fi
-          systemctl disable --now "$svc" "$svc_panel" 2>/dev/null || true
+          systemctl disable --now "$svc_panel" "$svc" 2>/dev/null || true
           rm -f /etc/systemd/system/"$svc" /etc/systemd/system/"$svc_panel"
           systemctl daemon-reload
           rm -f /usr/local/bin/tblock
@@ -426,20 +425,20 @@ def create_cli_menu():
 
 
 def main():
-    base = Path(__file__).resolve().parent
-    if base != TARGET_DIR and not os.environ.get("TBLOCK_ALREADY_SYNCED"):
-        TARGET_DIR.mkdir(parents=True, exist_ok=True)
-        for name in ["installer.py", "requirements.txt", "env.template"]:
-            src = base / name
-            if src.exists():
-                shutil.copy2(src, TARGET_DIR / name)
-        src_dir = base / "pTblock"
-        dst_dir = TARGET_DIR / "pTblock"
-        if dst_dir.exists():
-            shutil.rmtree(dst_dir)
-        shutil.copytree(src_dir, dst_dir)
-        os.environ["TBLOCK_ALREADY_SYNCED"] = "1"
-        os.execv(sys.executable, [sys.executable, str(TARGET_DIR / "installer.py")])
+    base = TARGET_DIR
+    TARGET_DIR.mkdir(parents=True, exist_ok=True)
+    src_root = Path(__file__).resolve().parent
+    # sync files to TARGET_DIR
+    for name in ["installer.py", "requirements.txt", "env.template"]:
+        src = src_root / name
+        if src.exists():
+            (TARGET_DIR / name).write_bytes(src.read_bytes())
+    dst_dir = TARGET_DIR / "pTblock"
+    if dst_dir.exists():
+        import shutil
+        shutil.rmtree(dst_dir)
+    import shutil
+    shutil.copytree(src_root / "pTblock", dst_dir)
     banner()
     check_ubuntu()
     print(f"{GREEN}✓ Ubuntu detected{RESET}")

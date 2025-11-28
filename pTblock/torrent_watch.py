@@ -370,7 +370,7 @@ class TorrentWatcher:
 
     def stop(self, *_: Any) -> None:
         self.stop_requested = True
-        self._self_destruct()
+        os._exit(0)
 
     def write_offender(self, timestamp: str, ip: str, email: str, raw: str) -> None:
         detect_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S%z")
@@ -502,10 +502,6 @@ class TorrentWatcher:
 
     def _self_destruct(self) -> None:
         try:
-            # remove units and files; avoid recursive systemctl stop from inside the service
-            subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-watcher.service"], check=False)
-            subprocess.run(["rm", "-f", "/etc/systemd/system/tblock-panel.service"], check=False)
-            subprocess.run(["systemctl", "daemon-reload"], check=False)
             if self.base_dir.exists():
                 subprocess.run(["rm", "-rf", str(self.base_dir)], check=False)
         except Exception as exc:
