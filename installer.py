@@ -533,13 +533,11 @@ def main():
                                 break
                         except Exception:
                             pass
-                    snippet = resp.text[:160].replace("\n", " ")
-                    print(f"{YELLOW}Login attempt to {url} returned {resp.status_code}: {snippet}{RESET}")
                 except Exception as e:
-                    print(f"{YELLOW}Login attempt to {url} failed: {e}{RESET}")
+                    pass
                     continue
             if not ok:
-                print(f"{RED}Password rejected by panel. Try again.{RESET}")
+                print(f"{RED}Password rejected by panel. Please check and try again.{RESET}")
                 continue
         except Exception as e:
             print(f"{RED}Password rejected by panel ({e}). Try again.{RESET}")
