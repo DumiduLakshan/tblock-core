@@ -58,11 +58,14 @@ def require_auth(request: Request):
 
 
 def fetch_token_info(ip: str) -> Optional[dict]:
-    if not SETTINGS or not SETTINGS.validator_url:
+    if not SETTINGS:
+        return None
+    validator_url = SETTINGS.validator_url or os.getenv("VALIDATOR_URL", "").rstrip("/")
+    if not validator_url:
         return None
     try:
         res = requests.post(
-            f"{SETTINGS.validator_url}/token-by-ip",
+            f"{validator_url}/token-by-ip",
             json={"vps_ip": ip},
             timeout=8,
             verify=False,

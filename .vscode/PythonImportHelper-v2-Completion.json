@@ -507,7 +507,7 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def require_auth(request: Request):\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    token = request.cookies.get(\"tblock_auth\", \"\")\n    if not token or not verify_cookie(token):\n        raise HTTPException(status_code=401, detail=\"Unauthorized\")\ndef fetch_token_info(ip: str) -> Optional[dict]:\n    if not SETTINGS or not SETTINGS.validator_url:\n        return None\n    try:",
+        "peekOfCode": "def require_auth(request: Request):\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    token = request.cookies.get(\"tblock_auth\", \"\")\n    if not token or not verify_cookie(token):\n        raise HTTPException(status_code=401, detail=\"Unauthorized\")\ndef fetch_token_info(ip: str) -> Optional[dict]:\n    if not SETTINGS:\n        return None\n    validator_url = SETTINGS.validator_url or os.getenv(\"VALIDATOR_URL\", \"\").rstrip(\"/\")",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
@@ -516,7 +516,7 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def fetch_token_info(ip: str) -> Optional[dict]:\n    if not SETTINGS or not SETTINGS.validator_url:\n        return None\n    try:\n        res = requests.post(\n            f\"{SETTINGS.validator_url}/token-by-ip\",\n            json={\"vps_ip\": ip},\n            timeout=8,\n            verify=False,\n        )",
+        "peekOfCode": "def fetch_token_info(ip: str) -> Optional[dict]:\n    if not SETTINGS:\n        return None\n    validator_url = SETTINGS.validator_url or os.getenv(\"VALIDATOR_URL\", \"\").rstrip(\"/\")\n    if not validator_url:\n        return None\n    try:\n        res = requests.post(\n            f\"{validator_url}/token-by-ip\",\n            json={\"vps_ip\": ip},",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
