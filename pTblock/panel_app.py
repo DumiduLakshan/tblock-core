@@ -137,6 +137,14 @@ def home(q: str = "", request: Request = None):
     for b in bans:
         info = fetch_token_info(b["ip"])
         enriched.append({**b, "token_info": info})
+    current_token = fetch_token_info(os.getenv("VPS_IP", "")) if SETTINGS else None
+    token_val = current_token.get("token") if current_token else "—"
+    expires_in = current_token.get("expires_in_seconds") if current_token else None
+    if expires_in is not None:
+        mins_left = max(int(expires_in // 60), 0)
+        token_exp_str = f"expires in {mins_left} min"
+    else:
+        token_exp_str = "expiry unknown"
     stats = STORE.stats() if STORE else {"total": 0}
     rows = ""
     for b in enriched:
@@ -200,7 +208,14 @@ def home(q: str = "", request: Request = None):
     </style></head><body>
     <div class="hero">
       <div><div class="title">Tblock Admin</div><div class="credit">crafted by @dragonforce</div></div>
-      <div class="card" style="padding:10px 12px; display:flex; gap:12px;">Total bans: {stats['total']}</div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <div class="card" style="padding:10px 12px; display:flex; gap:12px;">Total bans: {stats['total']}</div>
+        <div class="card" style="padding:10px 12px; display:flex; gap:10px; align-items:center;">
+          <div style="font-weight:600;">This VPS token</div>
+          <div style="font-family:monospace;">{token_val}</div>
+          <div style="color:#ef4444; font-size:12px;">{token_exp_str}</div>
+        </div>
+      </div>
     </div>
     <div class="grid">
       <div class="card">
