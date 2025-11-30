@@ -211,6 +211,7 @@ def home(q: str = "", request: Request = None):
     .credit {{ color: var(--muted); font-size:12px; }}
     .grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin:12px 0; }}
     .card {{ background: var(--card); border:1px solid var(--border); border-radius: var(--radius); padding:14px; box-shadow: var(--shadow); }}
+    .token-card {{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }}
     table {{ width:100%; border-collapse:collapse; margin-top:10px; }}
     th,td {{ padding:12px 10px; border-bottom:1px solid var(--border); font-size:13px; }}
     th {{ text-align:left; color: var(--muted); }}
@@ -225,13 +226,23 @@ def home(q: str = "", request: Request = None):
       background:#fff; border-radius:16px; padding:16px; max-width:400px; width:100%; box-shadow:0 30px 80px rgba(0,0,0,0.2);
       border:1px solid #e5e7eb;
     }}
-    @media (max-width: 640px) {{ th,td {{ font-size:12px; }} .hero {{ align-items:flex-start; gap:4px; }} }}
+    @media (max-width: 640px) {{
+      body {{ padding:12px; }}
+      .hero {{ flex-direction:column; align-items:flex-start; gap:6px; }}
+      .title {{ font-size:20px; }}
+      .card {{ padding:12px; }}
+      .token-card {{ flex-direction:column; align-items:flex-start; }}
+      .search-row {{ flex-direction:column; }}
+      .search-row button {{ width:100%; margin-left:0 !important; margin-top:8px; }}
+      th,td {{ font-size:12px; }}
+      table {{ display:block; overflow-x:auto; }}
+    }}
     </style></head><body>
     <div class="hero">
       <div><div class="title">Tblock Admin</div><div class="credit">crafted by @dragonforce</div></div>
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; width:100%;">
         <div class="card" style="padding:10px 12px; display:flex; gap:12px;">Total bans: {stats['total']}</div>
-        <div class="card" style="padding:10px 12px; display:flex; gap:10px; align-items:center;">
+        <div class="card token-card" style="padding:10px 12px;">
           <div style="font-weight:600;">This VPS token</div>
           <div style="font-family:monospace;">{token_val}</div>
           <div style="color:#ef4444; font-size:12px;">{token_exp_str}</div>
@@ -241,9 +252,9 @@ def home(q: str = "", request: Request = None):
     <div class="grid">
       <div class="card">
         <form method="get">
-          <div style="display:flex; gap:8px; align-items:center;">
+          <div class="search-row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <input name="q" placeholder="Search email" value="{q}" />
-            <button class="pill subtle" type="submit" style="width:120px;">Search</button>
+            <button class="pill subtle" type="submit" style="width:120px; margin-left:auto;">Search</button>
           </div>
         </form>
       </div>
