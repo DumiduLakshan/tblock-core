@@ -145,15 +145,25 @@ def home(q: str = "", request: Request = None):
         if sec < 3600:
             token_exp_str = f"expires in {sec // 60} min"
         elif sec < 86400:
-            token_exp_str = f"expires in {round(sec / 3600, 1)} hours"
+            hrs = sec // 3600
+            mins = (sec % 3600) // 60
+            token_exp_str = f"expires in {hrs}h {mins}m"
         elif sec < 604800:
-            token_exp_str = f"expires in {round(sec / 86400, 1)} days"
+            days = sec // 86400
+            hrs = (sec % 86400) // 3600
+            token_exp_str = f"expires in {days}d {hrs}h"
         elif sec < 2592000:
-            token_exp_str = f"expires in {round(sec / 604800, 1)} weeks"
+            weeks = sec // 604800
+            days = (sec % 604800) // 86400
+            token_exp_str = f"expires in {weeks}w {days}d"
         elif sec < 31536000:
-            token_exp_str = f"expires in {round(sec / 2592000, 1)} months"
+            months = sec // 2592000
+            days = (sec % 2592000) // 86400
+            token_exp_str = f"expires in {months}mo {days}d"
         else:
-            token_exp_str = f"expires in {round(sec / 31536000, 1)} years"
+            years = sec // 31536000
+            months = (sec % 31536000) // 2592000
+            token_exp_str = f"expires in {years}y {months}mo"
     else:
         token_exp_str = "expiry unknown"
     stats = STORE.stats() if STORE else {"total": 0}
