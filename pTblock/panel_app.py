@@ -141,8 +141,19 @@ def home(q: str = "", request: Request = None):
     token_val = current_token.get("token") if current_token else "—"
     expires_in = current_token.get("expires_in_seconds") if current_token else None
     if expires_in is not None:
-        mins_left = max(int(expires_in // 60), 0)
-        token_exp_str = f"expires in {mins_left} min"
+        sec = max(int(expires_in), 0)
+        if sec < 3600:
+            token_exp_str = f"expires in {sec // 60} min"
+        elif sec < 86400:
+            token_exp_str = f"expires in {round(sec / 3600, 1)} hours"
+        elif sec < 604800:
+            token_exp_str = f"expires in {round(sec / 86400, 1)} days"
+        elif sec < 2592000:
+            token_exp_str = f"expires in {round(sec / 604800, 1)} weeks"
+        elif sec < 31536000:
+            token_exp_str = f"expires in {round(sec / 2592000, 1)} months"
+        else:
+            token_exp_str = f"expires in {round(sec / 31536000, 1)} years"
     else:
         token_exp_str = "expiry unknown"
     stats = STORE.stats() if STORE else {"total": 0}
