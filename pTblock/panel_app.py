@@ -229,7 +229,7 @@ def home(q: str = "", request: Request = None):
     </div>
     <div class="card" style="overflow-x:auto;">
       <table>
-        <thead><tr><th>Email</th><th>IP</th><th>Domain</th><th>When</th><th>User</th><th>Token/Expiry</th><th>Action</th></tr></thead>
+        <thead><tr><th>Email</th><th>IP</th><th>Domain</th><th>When</th><th>Action</th></tr></thead>
         <tbody>{rows or '<tr><td colspan="5" style="color:var(--muted)">No bans yet.</td></tr>'}</tbody>
       </table>
     </div>
