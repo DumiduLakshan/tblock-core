@@ -228,14 +228,15 @@ def home(q: str = "", request: Request = None):
     }}
     @media (max-width: 640px) {{
       body {{ padding:12px; }}
-      .hero {{ flex-direction:column; align-items:flex-start; gap:6px; }}
+      .hero {{ flex-direction:column; align-items:flex-start; gap:6px; width:100%; }}
       .title {{ font-size:20px; }}
-      .card {{ padding:12px; }}
-      .token-card {{ flex-direction:column; align-items:flex-start; }}
-      .search-row {{ flex-direction:column; }}
+      .card {{ padding:12px; width:100%; box-sizing:border-box; }}
+      .token-card {{ flex-direction:column; align-items:flex-start; width:100%; }}
+      .search-row {{ flex-direction:column; width:100%; }}
+      .search-row input {{ width:100%; }}
       .search-row button {{ width:100%; margin-left:0 !important; margin-top:8px; }}
-      th,td {{ font-size:12px; }}
-      table {{ display:block; overflow-x:auto; }}
+      th,td {{ font-size:12px; white-space:nowrap; }}
+      table {{ display:block; overflow-x:auto; width:100%; }}
     }}
     </style></head><body>
     <div class="hero">
