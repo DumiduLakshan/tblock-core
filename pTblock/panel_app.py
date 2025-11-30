@@ -1,15 +1,16 @@
-from pathlib import Path
 import os
 import sys
 import secrets
 import hmac
 import hashlib
 from typing import Optional
+from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from dotenv import load_dotenv
+import requests
 
 BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
@@ -54,6 +55,23 @@ def require_auth(request: Request):
     token = request.cookies.get("tblock_auth", "")
     if not token or not verify_cookie(token):
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+def fetch_token_info(ip: str) -> Optional[dict]:
+    if not SETTINGS or not SETTINGS.validator_url:
+        return None
+    try:
+        res = requests.post(
+            f"{SETTINGS.validator_url}/token-by-ip",
+            json={"vps_ip": ip},
+            timeout=8,
+            verify=False,
+        )
+        if res.status_code == 200:
+            return res.json()
+    except Exception:
+        return None
+    return None
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -112,15 +130,29 @@ def home(q: str = "", request: Request = None):
     except Exception:
         return RedirectResponse(url="/login", status_code=302)
     bans = STORE.list(q) if STORE else []
+    enriched = []
+    for b in bans:
+        info = fetch_token_info(b["ip"])
+        enriched.append({**b, "token_info": info})
     stats = STORE.stats() if STORE else {"total": 0}
-    rows = "".join(
-        f"<tr onclick=\"showDetails('{b['email']}')\" style='cursor:pointer;'>"
-        f"<td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>"
-        f"<td><form method='post' action='/unban' onClick='event.stopPropagation();'>"
-        f"<input type='hidden' name='email' value='{b['email']}'/>"
-        f"<button type='submit' class='pill red'>Unban</button></form></td></tr>"
-        for b in bans
-    )
+    rows = ""
+    for b in enriched:
+        info = b.get("token_info") or {}
+        expires_in = info.get("expires_in_seconds")
+        expires_str = ""
+        if expires_in is not None:
+            mins = max(int(expires_in // 60), 0)
+            expires_str = f"{mins} min"
+        token_badge = info.get("token") or "—"
+        username = info.get("username") or ""
+        rows += (
+            f"<tr onclick=\"showDetails('{b['email']}')\" style='cursor:pointer;'>"
+            f"<td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>"
+            f"<td>{username}</td><td>{token_badge}<br/><span style='color:#ef4444;font-size:12px;'>{expires_str}</span></td>"
+            f"<td><form method='post' action='/unban' onClick='event.stopPropagation();'>"
+            f"<input type='hidden' name='email' value='{b['email']}'/>"
+            f"<button type='submit' class='pill red'>Unban</button></form></td></tr>"
+        )
     html = f"""
     <html><head><title>Tblock Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -179,7 +211,7 @@ def home(q: str = "", request: Request = None):
     </div>
     <div class="card" style="overflow-x:auto;">
       <table>
-        <thead><tr><th>Email</th><th>IP</th><th>Domain</th><th>When</th><th>Action</th></tr></thead>
+        <thead><tr><th>Email</th><th>IP</th><th>Domain</th><th>When</th><th>User</th><th>Token/Expiry</th><th>Action</th></tr></thead>
         <tbody>{rows or '<tr><td colspan="5" style="color:var(--muted)">No bans yet.</td></tr>'}</tbody>
       </table>
     </div>

@@ -295,6 +295,15 @@
         "documentation": {}
     },
     {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
         "label": "BanStore",
         "importPath": "ban_store",
         "description": "ban_store",
@@ -423,15 +432,6 @@
         "documentation": {}
     },
     {
-        "label": "requests",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "requests",
-        "description": "requests",
-        "detail": "requests",
-        "documentation": {}
-    },
-    {
         "label": "getpass",
         "kind": 6,
         "isExtraImport": true,
@@ -507,7 +507,16 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def require_auth(request: Request):\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    token = request.cookies.get(\"tblock_auth\", \"\")\n    if not token or not verify_cookie(token):\n        raise HTTPException(status_code=401, detail=\"Unauthorized\")\n@app.get(\"/login\", response_class=HTMLResponse)\ndef login_page():\n    html = \"\"\"\n    <html><head><title>Tblock Admin</title>",
+        "peekOfCode": "def require_auth(request: Request):\n    if not SETTINGS:\n        raise HTTPException(status_code=500, detail=\"Not ready\")\n    token = request.cookies.get(\"tblock_auth\", \"\")\n    if not token or not verify_cookie(token):\n        raise HTTPException(status_code=401, detail=\"Unauthorized\")\ndef fetch_token_info(ip: str) -> Optional[dict]:\n    if not SETTINGS or not SETTINGS.validator_url:\n        return None\n    try:",
+        "detail": "pTblock.panel_app",
+        "documentation": {}
+    },
+    {
+        "label": "fetch_token_info",
+        "kind": 2,
+        "importPath": "pTblock.panel_app",
+        "description": "pTblock.panel_app",
+        "peekOfCode": "def fetch_token_info(ip: str) -> Optional[dict]:\n    if not SETTINGS or not SETTINGS.validator_url:\n        return None\n    try:\n        res = requests.post(\n            f\"{SETTINGS.validator_url}/token-by-ip\",\n            json={\"vps_ip\": ip},\n            timeout=8,\n            verify=False,\n        )",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
@@ -534,7 +543,7 @@
         "kind": 2,
         "importPath": "pTblock.panel_app",
         "description": "pTblock.panel_app",
-        "peekOfCode": "def home(q: str = \"\", request: Request = None):\n    try:\n        require_auth(request)\n    except Exception:\n        return RedirectResponse(url=\"/login\", status_code=302)\n    bans = STORE.list(q) if STORE else []\n    stats = STORE.stats() if STORE else {\"total\": 0}\n    rows = \"\".join(\n        f\"<tr onclick=\\\"showDetails('{b['email']}')\\\" style='cursor:pointer;'>\"\n        f\"<td>{b['email']}</td><td>{b['ip']}</td><td>{b['domain']}</td><td>{b['created_at']}</td>\"",
+        "peekOfCode": "def home(q: str = \"\", request: Request = None):\n    try:\n        require_auth(request)\n    except Exception:\n        return RedirectResponse(url=\"/login\", status_code=302)\n    bans = STORE.list(q) if STORE else []\n    enriched = []\n    for b in bans:\n        info = fetch_token_info(b[\"ip\"])\n        enriched.append({**b, \"token_info\": info})",
         "detail": "pTblock.panel_app",
         "documentation": {}
     },
